@@ -5,7 +5,8 @@ class Puzzle:
     def get_lines(self) -> list[str]:
         with open(f"inputs/d{self.day:02}.in") as f:
             data = f.read()
-        return data.splitlines()
+        lines = [line.strip() for line in data.splitlines() if line]
+        return lines
 
     def solve(self) -> None:
         lines = self.get_lines()
