@@ -14,7 +14,11 @@ class Puzzle:
     def get_lines(self, path: str) -> list[str]:
         with open(path) as f:
             data = f.read()
-        lines = [line.strip() for line in data.splitlines() if line.strip()]
+        lines = [
+            line.strip()
+            for line in data.splitlines()
+            if line.strip() and not line.startswith("#")
+        ]
         return lines
 
     def get_input(self) -> list[str]:
@@ -29,7 +33,10 @@ class Puzzle:
     def solution(self, lines: list[str]) -> Any:
         return None
 
-    def solve(self, test: bool = True) -> None:
+    def solve(self, test: bool | str = True) -> None:
+        if isinstance(test, str):
+            print(self.solution([test]))
+            return
         if test:
             lines, result = self.get_test_data()
             solution = self.solution(lines)
