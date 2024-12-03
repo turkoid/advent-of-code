@@ -14,7 +14,11 @@ class Puzzle:
     def get_lines(self, path: str) -> list[str]:
         with open(path) as f:
             data = f.read()
-        lines = [line.strip() for line in data.splitlines() if line.strip()]
+        lines = [
+            line.strip()
+            for line in data.splitlines()
+            if line.strip() and not line.startswith("#")
+        ]
         return lines
 
     def get_input(self) -> list[str]:
@@ -26,22 +30,24 @@ class Puzzle:
         lines = lines[:-1]
         return lines, result
 
+    def is_safe(self, levels: list[int]):
+        prev_diff = None
+        for i in range(len(levels) - 1):
+            level = levels[i]
+            next_level = levels[i + 1]
+            diff = next_level - level
+            if not 1 <= abs(diff) <= 3:
+                return False
+            if prev_diff and prev_diff * diff < 0:
+                return False
+            prev_diff = diff
+        return True
+
     def solution(self, lines: list[str]) -> Any:
         safe_reports = 0
         for line in lines:
             levels = [int(lvl) for lvl in line.split()]
-            prev_diff = None
-            is_safe = True
-            for level, next_level in zip(levels[:-1], levels[1:]):
-                diff = level - next_level
-                if diff == 0 or abs(diff) > 3:
-                    is_safe = False
-                    break
-                if prev_diff and prev_diff * diff < 0:
-                    is_safe = False
-                    break
-                prev_diff = diff
-            if is_safe:
+            if self.is_safe(levels):
                 safe_reports += 1
         return safe_reports
 
