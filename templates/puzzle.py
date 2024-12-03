@@ -11,9 +11,11 @@ class Puzzle:
         self.day = day
         self.part = part
 
-    def get_lines(self, path: str) -> list[str]:
+    def get_data(self, path: str) -> str:
         with open(path) as f:
-            data = f.read()
+            return f.read()
+
+    def get_lines(self, data: str) -> list[str]:
         lines = [
             line.strip()
             for line in data.splitlines()
@@ -21,25 +23,26 @@ class Puzzle:
         ]
         return lines
 
-    def get_input(self) -> list[str]:
-        return self.get_lines(f"inputs/d{self.day:02}.in")
+    def get_input(self) -> str:
+        return self.get_data(f"inputs/d{self.day:02}.in")
 
-    def get_test_data(self) -> tuple[list[str], str]:
-        lines = self.get_lines(f"inputs/d{self.day:02}.test")
+    def get_test_data(self) -> tuple[str, str]:
+        data = self.get_data(f"inputs/d{self.day:02}.test")
+        lines = self.get_lines(data)
         result = lines[-1].split()[self.part - 1]
-        lines = lines[:-1]
-        return lines, result
+        data = "\n".join(lines[:-1])
+        return data, result
 
-    def solution(self, lines: list[str]) -> Any:
+    def solution(self, data: str) -> Any:
         return None
 
     def solve(self, test: bool | str = True) -> None:
         if isinstance(test, str):
-            print(self.solution([test]))
+            print(self.solution(test))
             return
         if test:
-            lines, result = self.get_test_data()
-            solution = self.solution(lines)
+            data, result = self.get_test_data()
+            solution = self.solution(data)
             assert (
                 str(solution) == result
             ), f"solution != result: {solution} != {result}"
