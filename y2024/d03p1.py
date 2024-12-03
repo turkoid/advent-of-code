@@ -1,8 +1,19 @@
 import re
 from typing import Any
+from typing import TypedDict
+
+
+class Data(TypedDict):
+    data: str
+    expected: Any
 
 
 class Puzzle:
+    __test__: Data = {
+        "data": "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))",
+        "expected": 161,
+    }
+
     def __init__(self, day: int | None = None, part: int | None = None):
         if day is None:
             # d{day:02}p{part}.py
@@ -28,11 +39,9 @@ class Puzzle:
         return self.get_data(f"inputs/d{self.day:02}.in")
 
     def get_test_data(self) -> tuple[str, str]:
-        data = self.get_data(f"inputs/d{self.day:02}.test")
-        lines = self.get_lines(data)
-        result = lines[-1].split()[self.part - 1]
-        data = "\n".join(lines[:-1])
-        return data, result
+        data = self.__test__["data"].strip()
+        expected = self.__test__["expected"]
+        return data, expected
 
     def solution(self, data: str) -> Any:
         total = 0
@@ -45,11 +54,9 @@ class Puzzle:
             print(self.solution(test))
             return
         if test:
-            data, result = self.get_test_data()
+            data, expected = self.get_test_data()
             solution = self.solution(data)
-            assert (
-                str(solution) == result
-            ), f"solution != result: {solution} != {result}"
+            assert solution == expected, f"solution != result: {solution} != {expected}"
         print(self.solution(self.get_input()))
 
 
