@@ -28,7 +28,7 @@ class Puzzle:
         with open(path) as f:
             return f.read().strip()
 
-    def get_lines(self, data: str) -> list[list[str]]:
+    def get_groups(self, data) -> list[list[str]]:
         current_lines = []
         line_groups = [current_lines]
         for line in data.splitlines():
@@ -39,6 +39,11 @@ class Puzzle:
             else:
                 current_lines.append(line)
         return line_groups
+
+    def get_lines(self, data: str) -> list[str]:
+        groups = self.get_groups(data)
+        assert len(groups) == 1
+        return groups[0]
 
     def get_input(self) -> str:
         return self.get_data(f"inputs/d{self.day:02}.in")
