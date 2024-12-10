@@ -33,8 +33,6 @@ class Puzzle:
         line_groups = [current_lines]
         for line in data.splitlines():
             line = line.strip()
-            if line.startswith("#"):
-                continue
             if len(line) == 0:
                 current_lines = []
                 line_groups.append(current_lines)
