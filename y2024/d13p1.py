@@ -30,8 +30,8 @@ class ClawMachine:
             buttons.append(Point(x, y))
         prize = data[-1][len("prize: ") :]
         x, y = prize.split(", ")
-        x = int(x[2:])
-        y = int(y[2:])
+        x = int(x[2:]) + 10000000000000
+        y = int(y[2:]) + 10000000000000
         machine = cls(*buttons, Point(x, y))
         return machine
 
@@ -60,7 +60,7 @@ Button B: X+27, Y+71
 Prize: X=18641, Y=10279
             """,
         ],
-        "expected": [480],
+        "expected": [875318608908],
     }
 
     def __init__(self, day: int | None = None, part: int | None = None):
@@ -111,8 +111,10 @@ Prize: X=18641, Y=10279
                 continue
             b = int(numerator / denominator)
             a = int((machine.prize.x - (b * machine.b.x)) / machine.a.x)
-            total += a * 3
-            total += b
+            location = Point(a * machine.a.x + b * machine.b.x, a * machine.a.y + b * machine.b.y)
+            if location == machine.prize:
+                total += a * 3
+                total += b
         return total
 
     def solve(self, test: bool | str = True) -> None:
