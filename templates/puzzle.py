@@ -1,5 +1,23 @@
 from collections.abc import Iterator
+from dataclasses import dataclass
 from typing import Any
+from typing import Self
+
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+    def __repr__(self):
+        return f"({self.x}, {self.y})"
+
+
+@dataclass
+class Object:
+    @classmethod
+    def from_data(cls, data: str) -> Self:
+        return cls()
 
 
 class Puzzle:
