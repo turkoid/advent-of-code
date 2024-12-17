@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Self
 
+type Pair[T] = tuple[T, T]
+
 
 @dataclass
 class Object:
