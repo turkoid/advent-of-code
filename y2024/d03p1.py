@@ -28,11 +28,7 @@ class Puzzle:
             return f.read()
 
     def get_lines(self, data: str) -> list[str]:
-        lines = [
-            line.strip()
-            for line in data.splitlines()
-            if line.strip() and not line.startswith("#")
-        ]
+        lines = [line.strip() for line in data.splitlines() if line.strip() and not line.startswith("#")]
         return lines
 
     def get_input(self) -> str:

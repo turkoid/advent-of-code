@@ -90,9 +90,7 @@ class Puzzle:
                     block,
                     free_space,
                 )
-                free_space_pointer = filesystem.index(
-                    free_space, free_space_pointer + 1
-                )
+                free_space_pointer = filesystem.index(free_space, free_space_pointer + 1)
         # self.print(filesystem)
         return self.checksum(filesystem)
 

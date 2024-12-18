@@ -14,11 +14,7 @@ class Puzzle:
     def get_lines(self, path: str) -> list[str]:
         with open(path) as f:
             data = f.read()
-        lines = [
-            line.strip()
-            for line in data.splitlines()
-            if line.strip() and not line.startswith("#")
-        ]
+        lines = [line.strip() for line in data.splitlines() if line.strip() and not line.startswith("#")]
         return lines
 
     def get_input(self) -> list[str]:
@@ -55,9 +51,7 @@ class Puzzle:
         if test:
             lines, result = self.get_test_data()
             solution = self.solution(lines)
-            assert (
-                str(solution) == result
-            ), f"solution != result: {solution} != {result}"
+            assert str(solution) == result, f"solution != result: {solution} != {result}"
         print(self.solution(self.get_input()))
 
 
