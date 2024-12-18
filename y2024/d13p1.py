@@ -94,7 +94,7 @@ Prize: X=18641, Y=10279
         return groups[0]
 
     def get_input(self) -> str:
-        return self.get_data(f"../input/y2024//d{self.day:02}.in")
+        return self.get_data(f"../io/y2024/input//d{self.day:02}.in")
 
     def get_test_data(self) -> Iterator[tuple[str, Any]]:
         cfg = self.__test__
