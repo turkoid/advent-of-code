@@ -18,10 +18,10 @@ class Puzzle:
         return lines
 
     def get_input(self) -> list[str]:
-        return self.get_lines(f"inputs/d{self.day:02}.in")
+        return self.get_lines(f"../input/y2024//d{self.day:02}.in")
 
     def get_test_data(self) -> tuple[list[str], str]:
-        lines = self.get_lines(f"inputs/d{self.day:02}.test")
+        lines = self.get_lines(f"../input/y2024//d{self.day:02}.test")
         result = lines[-1].split()[self.part - 1]
         lines = lines[:-1]
         return lines, result

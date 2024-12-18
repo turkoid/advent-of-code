@@ -49,7 +49,7 @@ class Puzzle:
         return line_groups
 
     def get_input(self) -> str:
-        return self.get_data(f"inputs/d{self.day:02}.in")
+        return self.get_data(f"../input/y2024//d{self.day:02}.in")
 
     def get_test_data(self) -> tuple[str, str]:
         data = self.__test__["data"].strip()
