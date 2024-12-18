@@ -97,7 +97,7 @@ class Puzzle:
             print(output)
             print("")
         if file and seconds:
-            output_dir = "output/d14p2"
+            output_dir = "../io/y2024/output/d14p2"
             filename = f"{output_dir}/grid{seconds:0>5}.jpg"
             if os.path.exists(filename):
                 return
