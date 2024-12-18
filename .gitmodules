@@ -1,3 +1,3 @@
-[submodule "input"]
-	path = input
-	url = git@github.com:turkoid/aoc-input.git
+[submodule "io"]
+	path = io
+	url = git@github.com:turkoid/aoc-io.git
