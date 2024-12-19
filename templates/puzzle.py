@@ -74,8 +74,8 @@ class Puzzle:
         test_data = [(raw.strip(), expected) for raw, expected in test_data]
         return test_data
 
-    def pretty_grid(self, grid: list[list[Any]]) -> str:
-        return "\n".join("".join(str(o) for o in line) for line in grid)
+    def pretty_grid(self, grid: list[list[Any] | Any]) -> str:
+        return "\n".join("".join(str(o) for o in line) if isinstance(line, list) else str(line) for line in grid)
 
     def solution(self, data: str) -> Any:
         return None
