@@ -97,7 +97,7 @@ class Puzzle:
             print(output)
             print("")
         if file and seconds:
-            output_dir = "../io/y2024/output/d14p2"
+            output_dir = "../../io/y2024/output/d14p2"
             filename = f"{output_dir}/grid{seconds:0>5}.jpg"
             if os.path.exists(filename):
                 return
@@ -107,7 +107,7 @@ class Puzzle:
             height = 1800
             img = Image.new(mode="RGB", size=(width, height), color=(bg, bg, bg))
             draw = ImageDraw.Draw(img)
-            font = ImageFont.truetype("../resources/JetBrainsMono-Regular.ttf", 12)
+            font = ImageFont.truetype("../../resources/JetBrainsMono-Regular.ttf", 12)
             point = (width / 2, height / 2)
             draw.text(point, output, fill=(fg, fg, fg), font=font, anchor="mm")
             img = img.resize((1000, 1000))

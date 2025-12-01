@@ -57,7 +57,7 @@ class Puzzle:
             for x, c in enumerate(line[1:-1], start=1):
                 if c != "A":
                     continue
-                nw_se_diag = f"{lines[y - 1][x -1]}A{lines[y + 1][x + 1]}"
+                nw_se_diag = f"{lines[y - 1][x - 1]}A{lines[y + 1][x + 1]}"
                 sw_ne_diag = f"{lines[y + 1][x - 1]}A{lines[y - 1][x + 1]}"
                 if nw_se_diag in mas_sam and sw_ne_diag in mas_sam:
                     count += 1

@@ -3,7 +3,7 @@ class Puzzle:
         self.day = day
 
     def get_lines(self) -> list[str]:
-        with open(f"../io/y2024/input/d{self.day:02}.in") as f:
+        with open(f"../../io/y2024/input/d{self.day:02}.in") as f:
             data = f.read()
         lines = [line.strip() for line in data.splitlines() if line]
         return lines
