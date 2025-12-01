@@ -1,15 +1,13 @@
 import inspect
 import os.path
 import re
-from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any
 
 from src.utils import root_dir
 
 
-class Puzzle(ABC):
+class Puzzle[T, R]:
     def __init__(self):
         if match := re.match(r"Day(\d+)Part(\d+)", self.__class__.__name__):
             self.day = int(match.group(1))
@@ -25,7 +23,7 @@ class Puzzle(ABC):
         return f"D{self.day:02}P{self.part:02}"
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return f"Day {self.day}, Part {self.part}"
 
     @property
@@ -77,27 +75,27 @@ class Puzzle(ABC):
         return output_path
 
     @abstractmethod
-    def solution(self, data: str) -> Any:
+    def parse_data(self, data: str) -> T:
         pass
 
-    def solve(self, tests: list[tuple[str, Any]] | None = None) -> None:
+    @abstractmethod
+    def solution(self, parsed_data: T) -> R:
+        pass
+
+    def solve(self, tests: list[tuple[str, R]] | None = None) -> None:
         if self.test(tests):
-            solution = self.solution(self.get_input())
+            solution = self.solution(self.parse_data(self.get_input()))
             print(f"=== {self.full_name} - SOLUTION ===")
             print(solution)
 
-    def test(self, tests: list[tuple[str, Any]] | None) -> bool:
+    def test(self, tests: list[tuple[str, R]] | None) -> bool:
         if not tests:
             return True
         for i, (data, expected) in enumerate(tests):
-            solution = self.solution(data.strip())
+            solution = self.solution(self.parse_data(data.strip()))
             if solution != expected:
                 print(f"=== {self.full_name} - TEST {i} ===")
                 msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
                 print("\n".join(str(part) for part in msg))
                 return False
         return True
-
-
-if __name__ == "__main__":
-    Puzzle().solve()
