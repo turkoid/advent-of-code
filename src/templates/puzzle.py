@@ -19,7 +19,7 @@ class Object:
         return cls()
 
 
-class PuzzleTemplate(ABC):
+class Puzzle(ABC):
     def __init__(self, day: int | None = None, part: int | None = None):
         file = inspect.getfile(self.__class__)
         if day is None:
@@ -92,4 +92,4 @@ class PuzzleTemplate(ABC):
 
 
 if __name__ == "__main__":
-    PuzzleTemplate().solve()
+    Puzzle().solve()
