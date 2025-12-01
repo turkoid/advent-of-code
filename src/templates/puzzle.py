@@ -87,6 +87,9 @@ class PuzzleTemplate(ABC):
     def solve(self) -> None:
         print(self.solution(self.get_input()))
 
+    def test(self, data: str, expected: Any) -> None:
+        assert self.solution(data.strip()) == expected
+
 
 if __name__ == "__main__":
     PuzzleTemplate().solve()
