@@ -1,36 +1,32 @@
 import inspect
 import os.path
+import re
 from abc import ABC
 from abc import abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from typing import Self
 
 from src.utils import root_dir
 
-type Pair[T] = tuple[T, T]
-
-
-@dataclass
-class Object:
-    @classmethod
-    def from_data(cls, data: str) -> Self:
-        return cls()
-
 
 class Puzzle(ABC):
-    def __init__(self, day: int | None = None, part: int | None = None):
+    def __init__(self):
+        if match := re.match(r"Day(\d+)Part(\d+)", self.__class__.__name__):
+            self.day = int(match.group(1))
+            self.part = int(match.group(2))
+        else:
+            raise ValueError("Invalid Class Name")
         file = inspect.getfile(self.__class__)
-        if day is None:
-            # d{day:02}p{part}.py
-            name = file[-8:-3]
-            day = int(name[1:3])
-            part = int(name[4:5])
-        self.day = day
-        self.part = part
         year_folder = os.path.basename(os.path.dirname(os.path.abspath(file)))
         self.year = int(year_folder[1:])
+
+    @property
+    def name(self) -> str:
+        return f"D{self.day:02}P{self.part:02}"
+
+    @property
+    def full_name(self):
+        return f"Day {self.day}, Part {self.part}"
 
     @property
     def root_dir(self) -> Path:
@@ -84,11 +80,23 @@ class Puzzle(ABC):
     def solution(self, data: str) -> Any:
         pass
 
-    def solve(self) -> None:
-        print(self.solution(self.get_input()))
+    def solve(self, tests: list[tuple[str, Any]] | None = None) -> None:
+        if self.test(tests):
+            solution = self.solution(self.get_input())
+            print(f"=== {self.full_name} - SOLUTION ===")
+            print(solution)
 
-    def test(self, data: str, expected: Any) -> None:
-        assert self.solution(data.strip()) == expected
+    def test(self, tests: list[tuple[str, Any]] | None) -> bool:
+        if not tests:
+            return True
+        for i, (data, expected) in enumerate(tests):
+            solution = self.solution(data.strip())
+            if solution != expected:
+                print(f"=== {self.full_name} - TEST {i} ===")
+                msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
+                print("\n".join(str(part) for part in msg))
+                return False
+        return True
 
 
 if __name__ == "__main__":
