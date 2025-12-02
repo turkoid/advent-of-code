@@ -46,7 +46,8 @@ class Puzzle[T, R]:
         with open(path) as f:
             return f.read().strip()
 
-    def get_groups(self, data: str) -> list[list[str]]:
+    def get_input_groups(self, data: str) -> list[list[str]]:
+        data = data.strip()
         current_lines = []
         line_groups = [current_lines]
         for line in data.splitlines():
@@ -58,18 +59,22 @@ class Puzzle[T, R]:
                 current_lines.append(line)
         return line_groups
 
-    def get_lines(self, data: str) -> list[str]:
-        groups = self.get_groups(data)
+    def get_input_lines(self, data: str) -> list[str]:
+        groups = self.get_input_groups(data)
         assert len(groups) == 1
         return groups[0]
 
-    def get_input(self) -> str:
+    def get_flat_input(self, data: str) -> str:
+        groups = self.get_input_lines(data)
+        return "".join(groups)
+
+    def get_raw_input(self) -> str:
         input_file = os.path.join(self.input_dir, f"d{self.day:02}p{self.part:02}.in")
         if not os.path.exists(input_file):
             input_file = os.path.join(self.input_dir, f"d{self.day:02}.in")
         return self.get_data(input_file)
 
-    def get_output(self, path: str):
+    def create_output_path(self, path: str) -> str:
         output_path = f"{self.output_dir}/{path}"
         os.makedirs(output_path, exist_ok=True)
         return output_path
@@ -84,7 +89,7 @@ class Puzzle[T, R]:
 
     def solve(self, tests: list[tuple[str, R]] | None = None) -> None:
         if self.test(tests):
-            solution = self.solution(self.parse_data(self.get_input()))
+            solution = self.solution(self.parse_data(self.get_raw_input()))
             print(f"=== {self.full_name} - SOLUTION ===")
             print(solution)
 
