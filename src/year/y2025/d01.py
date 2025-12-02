@@ -3,7 +3,7 @@ from templates.puzzle import Puzzle
 
 class Day1Part1(Puzzle[list[int], int]):
     def parse_data(self, data: str) -> list[int]:
-        instructions = self.get_lines(data)
+        instructions = self.get_input_lines(data)
         rotations = []
         for instruction in instructions:
             direction = instruction[0]
