@@ -28,5 +28,18 @@ class Day3Part1(Puzzle):
 
 
 class Day3Part2(Day3Part1):
-    def solution(self, parsed_data: list[str]) -> int:
-        pass
+    def solution(self, parsed_data: list[list[int]]) -> int:
+        total_voltage = 0
+        for bank in parsed_data:
+            batteries = []
+            index = -1
+            for i in range(12):
+                start_index = index + 1
+                end_index = -(11 - i)
+                seq = bank[start_index:] if end_index == 0 else bank[start_index:end_index]
+                offset, voltage = self._find_highest_voltage(seq)
+                index = start_index + offset
+                batteries.append(voltage)
+            bank_voltage = int("".join(str(b) for b in batteries))
+            total_voltage += bank_voltage
+        return total_voltage
