@@ -17,6 +17,8 @@ class Puzzle[T, R]:
         file = inspect.getfile(self.__class__)
         year_folder = os.path.basename(os.path.dirname(os.path.abspath(file)))
         self.year = int(year_folder[1:])
+        self.debug: bool = False
+        self.logs: list[str] = []
 
     @property
     def name(self) -> str:
@@ -87,22 +89,34 @@ class Puzzle[T, R]:
     def solution(self, parsed_data: T) -> R:
         pass
 
-    def solve(self, tests: list[tuple[str, R]] | None = None) -> None:
-        if self.test(tests):
+    def solve(self, tests: list[tuple[str, R]] | None = None, debug: bool = False) -> None:
+        if self.test(tests, debug):
+            self.logs.clear()
             print(f"=== {self.full_name} - SOLUTION ===")
             solution = self.solution(self.parse_data(self.get_raw_input()))
             print(solution)
 
-    def test(self, tests: list[tuple[str, R]] | None) -> bool:
+    def test(self, tests: list[tuple[str, R]] | None, debug: bool = True) -> bool:
+        self.debug = debug
         if not tests:
             return True
         for i, (data, expected) in enumerate(tests):
-            print(f"=== {self.full_name} - TEST {i} ===")
+            self.logs.clear()
+            self.log(f"=== {self.full_name} - TEST {i} ===")
             solution = self.solution(self.parse_data(data.strip()))
-            if solution == expected:
-                print("PASSED!")
-            else:
+            if solution != expected:
                 msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
-                print("\n".join(str(part) for part in msg))
+                self.log("\n".join(str(part) for part in msg))
+                if not self.debug:
+                    self.dump_logs()
                 return False
         return True
+
+    def log(self, *args) -> None:
+        msg = " ".join(str(arg) for arg in args)
+        self.logs.append(msg)
+        if self.debug:
+            print(msg)
+
+    def dump_logs(self) -> None:
+        print("\n".join(self.logs))
