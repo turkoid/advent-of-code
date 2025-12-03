@@ -92,14 +92,14 @@ class Puzzle[T, R]:
         pass
 
     def solve(self, tests: list[tuple[str, R]] | None = None, debug: bool = False) -> None:
-        if self.test(tests, debug):
+        if self.test(tests):
+            self.debug = debug
             self.logs.clear()
             print(create_banner(f"{self.full_name} - SOLUTION"))
             solution = self.solution(self.parse_data(self.get_raw_input()))
             print(solution)
 
-    def test(self, tests: list[tuple[str, R]] | None, debug: bool = True) -> bool:
-        self.debug = debug
+    def test(self, tests: list[tuple[str, R]] | None) -> bool:
         if not tests:
             return True
         for i, (data, expected) in enumerate(tests):
@@ -109,8 +109,7 @@ class Puzzle[T, R]:
             if solution != expected:
                 msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
                 self.log("\n".join(str(part) for part in msg))
-                if not self.debug:
-                    self.dump_logs()
+                self.dump_logs()
                 return False
         return True
 
