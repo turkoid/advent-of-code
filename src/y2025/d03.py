@@ -1,4 +1,4 @@
-from templates.puzzle import Puzzle
+from puzzle import Puzzle
 
 
 class Day3Part1(Puzzle):

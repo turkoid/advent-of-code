@@ -3,7 +3,7 @@ import itertools
 import math
 import operator
 
-from templates.puzzle import Puzzle
+from puzzle import Puzzle
 
 
 class Day2Part1(Puzzle):

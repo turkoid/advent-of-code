@@ -5,8 +5,7 @@ from abc import abstractmethod
 from pathlib import Path
 
 from utils import create_banner
-
-from src.utils import root_dir
+from utils import root_dir
 
 
 class Puzzle[T, R]:
