@@ -1,4 +1,5 @@
 import functools
+import itertools
 import math
 import operator
 
@@ -47,53 +48,50 @@ class Day2Part2(Puzzle):
             seq_bound = 10 ** (seq_size - 1) if is_lower else 10**seq_size - 1
             return seq_bound
         seq_bound = int(bound[:seq_size])
-        for i in range(seq_size, len(bound) - 1, seq_size):
-            grp = int(bound[i : i + seq_size])
-            if grp > seq_bound and is_lower:
-                seq_bound += 1
+        for batch in itertools.batched(bound[seq_size:], seq_size):
+            grp = int("".join(batch))
+            if grp == seq_bound:
+                continue
+            if is_lower:
+                if grp > seq_bound:
+                    seq_bound += 1
                 break
-            if grp < seq_bound and not is_lower:
-                seq_bound -= 1
+            else:
+                if grp < seq_bound:
+                    seq_bound -= 1
                 break
+        if len(str(seq_bound)) != seq_size:
+            seq_bound = -1
         return seq_bound
 
     def solution(self, parsed_data: list[tuple[str, str]]) -> int:
         invalid_id_sum = 0
         for lower_bound, upper_bound in parsed_data:
-            self.log(f"id_range=[{lower_bound}-{upper_bound}]")
+            self.log(f"### id_range=[{lower_bound}-{upper_bound}]")
             cache = {}
             min_id_size = len(lower_bound)
             max_id_size = len(upper_bound)
             max_seq_size = int(max_id_size / 2)
 
             for seq_size in range(1, max_seq_size + 1):
-                self.log(f"{seq_size=}")
-                cache[seq_size] = {}
                 min_group_count = max(math.ceil(min_id_size / seq_size), 2)
                 max_group_count = int(max_id_size / seq_size)
-                self.log(f"group_size_range=[{min_group_count}-{max_group_count}]")
                 for group_count in range(min_group_count, max_group_count + 1):
                     id_size = seq_size * group_count
-                    self.log(f"{id_size=}")
                     seq_start = self._find_seq_bound(seq_size, id_size, lower_bound, True)
                     seq_end = self._find_seq_bound(seq_size, id_size, upper_bound, False)
-                    self.log(f"seq_range=[{seq_start}-{seq_end}]")
-                    partial_sum = 0
+                    if seq_start <= seq_end:
+                        self.log(
+                            f"{seq_size}x{group_count}: invalid_id_range=[{str(seq_start) * group_count}-{str(seq_end) * group_count}]"
+                        )
                     for seq in range(seq_start, seq_end + 1):
                         invalid_id = int(str(seq) * group_count)
-                        self.log(f"+{invalid_id=}")
-                        partial_sum += invalid_id
-                    if partial_sum == 0:
-                        continue
-                    cache[seq_size][id_size] = partial_sum
-                    invalid_id_sum += partial_sum
-                    # remove duplicates
-                    for duplicate_seq_size in range(seq_size - 1, 0, -1):
-                        if seq_size % duplicate_seq_size != 0:
-                            continue
-                        if id_size in cache[duplicate_seq_size]:
-                            self.log(f"removing: {duplicate_seq_size}|{id_size}")
-                            invalid_id_sum -= cache[duplicate_seq_size][id_size]
+                        if invalid_id in cache:
+                            self.log(f"skipping cached id: {invalid_id}")
+                        else:
+                            cache[invalid_id] = True
+                            self.log(f"+{invalid_id=}")
+                            invalid_id_sum += invalid_id
         return invalid_id_sum
 
 
