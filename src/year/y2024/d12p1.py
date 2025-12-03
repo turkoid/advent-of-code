@@ -65,7 +65,7 @@ class Plot:
         return total
 
 
-class Puzzle:
+class Day12Part1:
     __test__ = {
         "data": [
             """
@@ -227,4 +227,4 @@ MMMISSJEEE
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day12Part1().solve()

@@ -101,7 +101,7 @@ class Plot:
         return sides
 
 
-class Puzzle:
+class Day12Part2:
     __test__ = {
         "data": [
             """
@@ -280,4 +280,4 @@ MMMISSJEEE
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day12Part2().solve()

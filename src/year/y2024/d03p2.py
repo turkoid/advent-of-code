@@ -8,7 +8,7 @@ class Data(TypedDict):
     expected: Any
 
 
-class Puzzle:
+class Day3Part2:
     __test__: Data = {
         "data": "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))",
         "expected": 48,
@@ -63,4 +63,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day3Part2().solve()

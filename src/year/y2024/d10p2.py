@@ -66,7 +66,7 @@ class Grid:
         return [Point(x, y) for y, row in enumerate(self.cells) for x, cell in enumerate(row) if self[x, y] == height]
 
 
-class Puzzle:
+class Day10Part2:
     __test__ = {
         "data": [
             """
@@ -195,4 +195,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day10Part2().solve()

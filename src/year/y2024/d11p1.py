@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from typing import Any
 
 
-class Puzzle:
+class Day11Part1:
     __test__ = {
         "data": [
             """
@@ -94,4 +94,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day11Part1().solve()

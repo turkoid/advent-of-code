@@ -5,7 +5,7 @@ from typing import Any
 type Pair[T] = tuple[T, T]
 
 
-class Puzzle:
+class Day15Part1:
     def __init__(self, day: int | None = None, part: int | None = None):
         if day is None:
             # d{day:02}p{part}.py
@@ -131,4 +131,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day15Part1().solve()

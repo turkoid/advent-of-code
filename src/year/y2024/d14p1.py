@@ -34,7 +34,7 @@ class Robot:
         self.position = (x, y)
 
 
-class Puzzle:
+class Day14Part1:
     __test__ = {
         "data": [
             """
@@ -155,4 +155,4 @@ p=9,5 v=-3,-3
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day14Part1().solve()

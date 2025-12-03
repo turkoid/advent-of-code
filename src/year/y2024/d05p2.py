@@ -7,7 +7,7 @@ class Data(TypedDict):
     expected: Any
 
 
-class Puzzle:
+class Day5Part2:
     __test__: Data = {
         "data": """
 47|53
@@ -144,4 +144,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day5Part2().solve()

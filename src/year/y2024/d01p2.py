@@ -1,4 +1,4 @@
-class Puzzle:
+class Day1Part2:
     def __init__(self, day: int):
         self.day = day
 
@@ -26,4 +26,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle(1).solve()
+    Day1Part2(1).solve()

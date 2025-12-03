@@ -40,7 +40,7 @@ class Robot:
         return f"R[{self.origin[0]}, {self.origin[1]}]"
 
 
-class Puzzle:
+class Day14Part2:
     __test__ = {
         "data": [],
         "expected": [],
@@ -174,4 +174,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day14Part2().solve()

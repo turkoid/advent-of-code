@@ -39,7 +39,7 @@ class ClawMachine:
         return f"{self.prize}, A: {self.a}, B: {self.b}"
 
 
-class Puzzle:
+class Day13Part1:
     __test__ = {
         "data": [
             """
@@ -129,4 +129,4 @@ Prize: X=18641, Y=10279
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day13Part1().solve()

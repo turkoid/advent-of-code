@@ -25,7 +25,7 @@ class File:
         return self.id * self.size
 
 
-class Puzzle:
+class Day9Part2:
     __test__: Data = {
         "data": """
 2333133121414131402
@@ -150,4 +150,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day9Part2().solve()

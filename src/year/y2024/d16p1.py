@@ -14,7 +14,7 @@ class Object:
         return cls()
 
 
-class Puzzle:
+class Day16Part1:
     def __init__(self, day: int | None = None, part: int | None = None):
         if day is None:
             # d{day:02}p{part}.py
@@ -136,4 +136,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day16Part1().solve()

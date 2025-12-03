@@ -5,7 +5,7 @@ from typing import Any
 type Lineage = tuple[int, ...]
 
 
-class Puzzle:
+class Day11Part2:
     #     __test__ = {
     #             "data": [
     #             """
@@ -125,4 +125,4 @@ class Puzzle:
 
 
 if __name__ == "__main__":
-    Puzzle().solve()
+    Day11Part2().solve()
