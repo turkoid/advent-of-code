@@ -60,33 +60,40 @@ class Day2Part2(Puzzle):
     def solution(self, parsed_data: list[tuple[str, str]]) -> int:
         invalid_id_sum = 0
         for lower_bound, upper_bound in parsed_data:
-            print(f"===[{lower_bound}, {upper_bound}]===")
+            self.log(f"id_range=[{lower_bound}-{upper_bound}]")
             cache = {}
             min_id_size = len(lower_bound)
             max_id_size = len(upper_bound)
             max_seq_size = int(max_id_size / 2)
 
             for seq_size in range(1, max_seq_size + 1):
+                self.log(f"{seq_size=}")
                 cache[seq_size] = {}
                 min_group_count = max(math.ceil(min_id_size / seq_size), 2)
                 max_group_count = int(max_id_size / seq_size)
+                self.log(f"group_size_range=[{min_group_count}-{max_group_count}]")
                 for group_count in range(min_group_count, max_group_count + 1):
                     id_size = seq_size * group_count
+                    self.log(f"{id_size=}")
                     seq_start = self._find_seq_bound(seq_size, id_size, lower_bound, True)
                     seq_end = self._find_seq_bound(seq_size, id_size, upper_bound, False)
+                    self.log(f"seq_range=[{seq_start}-{seq_end}]")
                     partial_sum = 0
                     for seq in range(seq_start, seq_end + 1):
                         invalid_id = int(str(seq) * group_count)
-                        print(seq_size, group_count, id_size, invalid_id)
+                        self.log(f"+{invalid_id=}")
                         partial_sum += invalid_id
+                    if partial_sum == 0:
+                        continue
                     cache[seq_size][id_size] = partial_sum
                     invalid_id_sum += partial_sum
                     # remove duplicates
-                    for repeated_seq_size in range(seq_size - 1, 0, -1):
-                        if seq_size % repeated_seq_size != 0:
+                    for duplicate_seq_size in range(seq_size - 1, 0, -1):
+                        if seq_size % duplicate_seq_size != 0:
                             continue
-                        if id_size in cache[repeated_seq_size]:
-                            invalid_id_sum -= cache[repeated_seq_size][id_size]
+                        if id_size in cache[duplicate_seq_size]:
+                            self.log(f"removing: {duplicate_seq_size}|{id_size}")
+                            invalid_id_sum -= cache[duplicate_seq_size][id_size]
         return invalid_id_sum
 
 
@@ -107,4 +114,4 @@ def brute_force(lower_bound, upper_bound):
 
 
 if __name__ == "__main__":
-    brute_force(3737332285, 3737422568)
+    brute_force(12, 8080)
