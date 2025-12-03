@@ -1,3 +1,7 @@
+import functools
+import math
+import operator
+
 from templates.puzzle import Puzzle
 
 
@@ -38,18 +42,56 @@ class Day2Part2(Puzzle):
             parsed_ranges.append(parsed_range)
         return parsed_ranges
 
-    def _find_possible_sequence_sizes(self, bound: str) -> list[int]:
-        sizes = [n for n in range(1, int(len(bound) / 2) + 1) if len(bound) % n == 0]
-        return sizes
+    def _find_seq_bound(self, seq_size: int, id_size: int, bound: str, is_lower: bool) -> int:
+        if id_size != len(bound):
+            seq_bound = 10 ** (seq_size - 1) if is_lower else 10**seq_size - 1
+            return seq_bound
+        seq_bound = int(bound[:seq_size])
+        for i in range(seq_size, len(bound) - 1, seq_size):
+            grp = int(bound[i : i + seq_size])
+            if grp > seq_bound and is_lower:
+                seq_bound += 1
+                break
+            if grp < seq_bound and not is_lower:
+                seq_bound -= 1
+                break
+        return seq_bound
 
     def solution(self, parsed_data: list[tuple[str, str]]) -> int:
-        pass
+        invalid_id_sum = 0
+        for lower_bound, upper_bound in parsed_data:
+            print(f"===[{lower_bound}, {upper_bound}]===")
+            cache = {}
+            min_id_size = len(lower_bound)
+            max_id_size = len(upper_bound)
+            max_seq_size = int(max_id_size / 2)
+
+            for seq_size in range(1, max_seq_size + 1):
+                cache[seq_size] = {}
+                min_group_count = max(math.ceil(min_id_size / seq_size), 2)
+                max_group_count = int(max_id_size / seq_size)
+                for group_count in range(min_group_count, max_group_count + 1):
+                    id_size = seq_size * group_count
+                    seq_start = self._find_seq_bound(seq_size, id_size, lower_bound, True)
+                    seq_end = self._find_seq_bound(seq_size, id_size, upper_bound, False)
+                    partial_sum = 0
+                    for seq in range(seq_start, seq_end + 1):
+                        invalid_id = int(str(seq) * group_count)
+                        print(seq_size, group_count, id_size, invalid_id)
+                        partial_sum += invalid_id
+                    cache[seq_size][id_size] = partial_sum
+                    invalid_id_sum += partial_sum
+                    # remove duplicates
+                    for repeated_seq_size in range(seq_size - 1, 0, -1):
+                        if seq_size % repeated_seq_size != 0:
+                            continue
+                        if id_size in cache[repeated_seq_size]:
+                            invalid_id_sum -= cache[repeated_seq_size][id_size]
+        return invalid_id_sum
 
 
-if __name__ == "__main__":
-    lower_bound = 1010
-    upper_bound = 808080
-    invalid_id_count = 0
+def brute_force(lower_bound, upper_bound):
+    invalid_ids = []
     for id in range(lower_bound, upper_bound + 1):
         id_str = str(id)
         mid = int(len(id_str) / 2)
@@ -58,9 +100,11 @@ if __name__ == "__main__":
             i_str = str(i)
             invalid_id = i_str * int(len(id_str) / len(i_str))
             if id_str == invalid_id:
-                print(id)
-                invalid_id_count += 1
+                invalid_ids.append(int(invalid_id))
                 break
-    # for id in invalid_ids:
-    #     print(id)
-    print(invalid_id_count)
+    print(f"invalid id count: {len(invalid_ids)}")
+    print(f"invalid id sum: {functools.reduce(operator.add, invalid_ids)}")
+
+
+if __name__ == "__main__":
+    brute_force(3737332285, 3737422568)
