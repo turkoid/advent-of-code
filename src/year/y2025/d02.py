@@ -80,10 +80,11 @@ class Day2Part2(Puzzle):
                     id_size = seq_size * group_count
                     seq_start = self._find_seq_bound(seq_size, id_size, lower_bound, True)
                     seq_end = self._find_seq_bound(seq_size, id_size, upper_bound, False)
-                    if seq_start <= seq_end:
-                        self.log(
-                            f"{seq_size}x{group_count}: invalid_id_range=[{str(seq_start) * group_count}-{str(seq_end) * group_count}]"
-                        )
+                    if seq_start > seq_end:
+                        continue
+                    self.log(
+                        f"{seq_size}x{group_count}: invalid_id_range=[{str(seq_start) * group_count}-{str(seq_end) * group_count}]"
+                    )
                     for seq in range(seq_start, seq_end + 1):
                         invalid_id = int(str(seq) * group_count)
                         if invalid_id in cache:
