@@ -4,6 +4,8 @@ import re
 from abc import abstractmethod
 from pathlib import Path
 
+from utils import create_banner
+
 from src.utils import root_dir
 
 
@@ -92,7 +94,7 @@ class Puzzle[T, R]:
     def solve(self, tests: list[tuple[str, R]] | None = None, debug: bool = False) -> None:
         if self.test(tests, debug):
             self.logs.clear()
-            print(f"=== {self.full_name} - SOLUTION ===")
+            print(create_banner(f"{self.full_name} - SOLUTION"))
             solution = self.solution(self.parse_data(self.get_raw_input()))
             print(solution)
 
@@ -102,7 +104,7 @@ class Puzzle[T, R]:
             return True
         for i, (data, expected) in enumerate(tests):
             self.logs.clear()
-            self.log(f"=== {self.full_name} - TEST {i} ===")
+            self.log(create_banner(f"{self.full_name} - TEST {i}"))
             solution = self.solution(self.parse_data(data.strip()))
             if solution != expected:
                 msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
