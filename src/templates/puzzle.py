@@ -89,17 +89,19 @@ class Puzzle[T, R]:
 
     def solve(self, tests: list[tuple[str, R]] | None = None) -> None:
         if self.test(tests):
-            solution = self.solution(self.parse_data(self.get_raw_input()))
             print(f"=== {self.full_name} - SOLUTION ===")
+            solution = self.solution(self.parse_data(self.get_raw_input()))
             print(solution)
 
     def test(self, tests: list[tuple[str, R]] | None) -> bool:
         if not tests:
             return True
         for i, (data, expected) in enumerate(tests):
+            print(f"=== {self.full_name} - TEST {i} ===")
             solution = self.solution(self.parse_data(data.strip()))
-            if solution != expected:
-                print(f"=== {self.full_name} - TEST {i} ===")
+            if solution == expected:
+                print("PASSED!")
+            else:
                 msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
                 print("\n".join(str(part) for part in msg))
                 return False
