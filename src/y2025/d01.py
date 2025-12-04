@@ -1,7 +1,7 @@
-from advent_of_code import AdventOfCode
+from puzzle import Puzzle
 
 
-class Day1Part1(AdventOfCode[list[int], int]):
+class Day1Part1(Puzzle[list[int], int]):
     def parse_data(self, data: str) -> list[int]:
         instructions = self.get_input_lines(data)
         rotations = []

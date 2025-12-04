@@ -1,7 +1,7 @@
-from advent_of_code import AdventOfCode
+from puzzle import Puzzle
 
 
-class Day3Part1(AdventOfCode):
+class Day3Part1(Puzzle):
     def parse_data(self, data: str) -> list[list[int]]:
         banks = self.get_input_lines(data)
         return [[int(battery) for battery in bank] for bank in banks]
