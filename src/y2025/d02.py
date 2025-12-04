@@ -3,10 +3,10 @@ import itertools
 import math
 import operator
 
-from puzzle import Puzzle
+from advent_of_code import AdventOfCode
 
 
-class Day2Part1(Puzzle):
+class Day2Part1(AdventOfCode):
     def parse_data(self, data: str) -> list[tuple[int, int]]:
         input_data = self.get_flat_input(data)
         ranges = input_data.split(",")
@@ -32,7 +32,7 @@ class Day2Part1(Puzzle):
         return invalid_id_sum
 
 
-class Day2Part2(Puzzle):
+class Day2Part2(AdventOfCode):
     def parse_data(self, data: str) -> list[tuple[str, str]]:
         input_data = self.get_flat_input(data)
         ranges = input_data.split(",")

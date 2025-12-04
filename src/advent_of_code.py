@@ -8,7 +8,7 @@ from utils import create_banner
 from utils import root_dir
 
 
-class Puzzle[T, R]:
+class AdventOfCode[T, R]:
     def __init__(self):
         if match := re.match(r"Day(\d+)Part(\d+)", self.__class__.__name__):
             self.day = int(match.group(1))

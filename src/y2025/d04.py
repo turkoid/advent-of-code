@@ -1,10 +1,10 @@
-from puzzle import Puzzle
+from advent_of_code import AdventOfCode
 from utils import pretty_grid
 
 type Grid = list[list[str]]
 
 
-class Day4Part1(Puzzle):
+class Day4Part1(AdventOfCode):
     def parse_data(self, data: str) -> Grid:
         grid = [list(line) for line in self.get_input_lines(data)]
         assert len(grid) > 0
