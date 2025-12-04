@@ -71,6 +71,9 @@ class Puzzle[T, R]:
         groups = self.get_input_lines(data)
         return "".join(groups)
 
+    def get_input_grid(self, data: str) -> list[list[str]]:
+        return [list(line) for line in self.get_input_lines(data)]
+
     def get_raw_input(self) -> str:
         input_file = os.path.join(self.input_dir, f"d{self.day:02}p{self.part:02}.in")
         if not os.path.exists(input_file):
