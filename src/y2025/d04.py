@@ -1,5 +1,3 @@
-import copy
-
 from puzzle import Puzzle
 from utils import pretty_grid
 
@@ -14,8 +12,7 @@ class Day4Part1(Puzzle):
         assert all(len(row) == width for row in grid)
         return grid
 
-    def move_paper_rolls(self, warehouse: Grid) -> int:
-        warehouse = copy.deepcopy(warehouse)
+    def move_paper_rolls(self, warehouse: Grid, part1: bool = True) -> int:
         width = len(warehouse[0])
         height = len(warehouse)
         moved_paper_rolls = 0
@@ -32,7 +29,8 @@ class Day4Part1(Puzzle):
                     adjacent_cells.append(row[x + 1])
                 if y + 1 < height:
                     adjacent_cells.extend(warehouse[y + 1][max(x - 1, 0) : min(x + 2, width + 1)])
-                if (adjacent_cells.count("@") + adjacent_cells.count("X")) < 4:
+
+                if (adjacent_cells.count("@") + (adjacent_cells.count("X") if part1 else 0)) < 4:
                     moved_paper_rolls += 1
                     warehouse[y][x] = "X"
         self.log(pretty_grid(warehouse))
@@ -41,4 +39,14 @@ class Day4Part1(Puzzle):
     def solution(self, parsed_data: Grid) -> int:
         self.log(pretty_grid(parsed_data))
         moved_paper_rolls = self.move_paper_rolls(parsed_data)
+        return moved_paper_rolls
+
+
+class Day4Part2(Day4Part1):
+    def solution(self, parsed_data: Grid) -> int:
+        self.log(pretty_grid(parsed_data))
+        moved_paper_rolls = 0
+        while removed_paper_rolls := self.move_paper_rolls(parsed_data, False):
+            self.log(f"Removed {removed_paper_rolls} paper rolls")
+            moved_paper_rolls += removed_paper_rolls
         return moved_paper_rolls
