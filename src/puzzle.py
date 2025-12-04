@@ -1,23 +1,23 @@
 import inspect
-import os.path
 import re
 from abc import abstractmethod
 from pathlib import Path
+from typing import Any
 
 from utils import create_banner
 from utils import root_dir
 
 
-class Puzzle[T, R]:
+class Puzzle:
     def __init__(self):
         if match := re.match(r"Day(\d+)Part(\d+)", self.__class__.__name__):
             self.day = int(match.group(1))
             self.part = int(match.group(2))
         else:
             raise ValueError("Invalid Class Name")
-        file = inspect.getfile(self.__class__)
-        year_folder = os.path.basename(os.path.dirname(os.path.abspath(file)))
-        self.year = int(year_folder[1:])
+        file = Path(inspect.getfile(self.__class__))
+        year_folder = file.absolute().parent
+        self.year = int(year_folder.name[1:])
         self.debug: bool = False
         self.logs: list[str] = []
 
@@ -34,20 +34,19 @@ class Puzzle[T, R]:
         return root_dir()
 
     @property
-    def io_dir(self) -> str:
-        return os.path.join(self.root_dir, f"io/y{self.year}")
+    def io_dir(self) -> Path:
+        return self.root_dir.joinpath("io", f"y{self.year:04}")
 
     @property
-    def input_dir(self) -> str:
-        return os.path.join(self.io_dir, "input")
+    def input_dir(self) -> Path:
+        return self.io_dir.joinpath("input")
 
     @property
-    def output_dir(self) -> str:
-        return os.path.join(self.io_dir, "output")
+    def output_dir(self) -> Path:
+        return self.io_dir.joinpath("output")
 
-    def get_data(self, path: str) -> str:
-        with open(path) as f:
-            return f.read().strip()
+    def get_data(self, path: Path) -> str:
+        return path.read_text()
 
     def get_input_groups(self, data: str) -> list[list[str]]:
         data = data.strip()
@@ -75,25 +74,25 @@ class Puzzle[T, R]:
         return [list(line) for line in self.get_input_lines(data)]
 
     def get_raw_input(self) -> str:
-        input_file = os.path.join(self.input_dir, f"d{self.day:02}p{self.part:02}.in")
-        if not os.path.exists(input_file):
-            input_file = os.path.join(self.input_dir, f"d{self.day:02}.in")
-        return self.get_data(input_file)
+        input_path = self.input_dir.joinpath(f"d{self.day:02}p{self.part:02}.in")
+        if not input_path.exists():
+            input_path = self.input_dir.joinpath(f"d{self.day:02}.in")
+        return self.get_data(input_path)
 
-    def create_output_path(self, path: str) -> str:
-        output_path = f"{self.output_dir}/{path}"
-        os.makedirs(output_path, exist_ok=True)
+    def create_output_path(self, path: Path | str) -> Path:
+        output_path = self.output_dir.joinpath(path)
+        output_path.mkdir(parents=True, exist_ok=True)
         return output_path
 
     @abstractmethod
-    def parse_data(self, data: str) -> T:
+    def parse_data(self, data: str) -> None:
         pass
 
     @abstractmethod
-    def solution(self, parsed_data: T) -> R:
+    def solution(self, parsed_data: None) -> None:
         pass
 
-    def solve(self, tests: list[tuple[str, R]] | None = None, debug: bool = False) -> None:
+    def solve(self, tests: list[tuple[str, Any]] | None = None, debug: bool = False) -> None:
         if self.test(tests):
             self.debug = debug
             self.logs.clear()
@@ -101,7 +100,7 @@ class Puzzle[T, R]:
             solution = self.solution(self.parse_data(self.get_raw_input()))
             print(solution)
 
-    def test(self, tests: list[tuple[str, R]] | None) -> bool:
+    def test(self, tests: list[tuple[str, Any]] | None) -> bool:
         if not tests:
             return True
         for i, (data, expected) in enumerate(tests):
