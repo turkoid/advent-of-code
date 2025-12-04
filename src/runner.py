@@ -1,6 +1,8 @@
 import importlib
 from typing import Any
 
+from aoc import AdventOfCode
+
 
 class Runner:
     def __init__(self, year: int, day: int, parts: int) -> None:
@@ -9,7 +11,7 @@ class Runner:
         self.parts = parts
         self.runnable: dict[int, bool] = {}
         self.tests: dict[int, list[tuple[str, Any]]] = {}
-        self.module = importlib.import_module(f"y{self.year:04}.d{self.day:02}")
+        self.module = importlib.import_module(AdventOfCode.puzzle_module(self.year, self.day))
 
     def add_test(self, part: int, data: str, expected: Any) -> None:
         self.tests.setdefault(part, []).append((data, expected))
@@ -29,10 +31,10 @@ class Runner:
             start = part
             end = start + 1
 
-        for _part in range(start, end):
-            if not self.runnable.get(_part, False):
+        for part in range(start, end):
+            if not self.runnable.get(part, False):
                 continue
-            puzzle_class = getattr(self.module, f"Day{self.day}Part{_part}")
+            puzzle_class = getattr(self.module, AdventOfCode.puzzle_class(self.day, part))
             puzzle = puzzle_class()
-            tests = self.tests.get(_part, [])
+            tests = self.tests.get(part, [])
             puzzle.solve(tests, debug=debug)

@@ -1,4 +1,5 @@
 import re
+import sys
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -26,16 +27,31 @@ class AdventOfCode:
         self.day = day
         self.parts = parts
 
-    @property
-    def formatted_year(self) -> str:
-        return f"y{self.year:04}"
+    @staticmethod
+    def formatted_year(year: int) -> str:
+        return f"y{year:04}"
 
-    @property
-    def formatted_day(self) -> str:
-        return f"d{self.day:02}"
+    @staticmethod
+    def formatted_day(day: int) -> str:
+        return f"d{day:02}"
 
-    def day_classname(self, part: int):
-        return f"Day{self.day}Part{part}"
+    @staticmethod
+    def formatted_part(part: int) -> str:
+        return f"p{part:02}"
+
+    @staticmethod
+    def puzzle_class(day: int, part: int) -> str:
+        return f"Day{day}Part{part}"
+
+    @staticmethod
+    def puzzle_module(year: int, day: int, part: int | None = None) -> str:
+        module = [
+            AdventOfCode.formatted_year(year),
+            AdventOfCode.formatted_day(day),
+        ]
+        if part is not None:
+            module.append(AdventOfCode.formatted_part(part))
+        return ".".join(module)
 
     def generate_day_content(self) -> str:
         BASE_CLASS = "Puzzle"
@@ -43,9 +59,10 @@ class AdventOfCode:
         content.append(f"from puzzle import {BASE_CLASS}")
         content.append("")
         content.append("")
-        for part in range(self.parts):
+        for i in range(self.parts):
+            part = i + 1
             day_code = f"""
-                class {self.day_classname(part + 1)}({BASE_CLASS}):
+                class {AdventOfCode.puzzle_class(self.day, part)}({BASE_CLASS}):
                     def parse_data(self, data: str) -> None:
                         pass
 
@@ -83,8 +100,9 @@ class AdventOfCode:
         if self.year <= 0:
             raise click.ClickException("If you really think about it, Advent-of-Code could not exist before 1 AD")
 
-        io_year = Path("io").joinpath(self.formatted_year)
-        src_year = Path("src").joinpath(self.formatted_year)
+        year_pkg = AdventOfCode.formatted_year(self.year)
+        io_year = Path("io").joinpath(year_pkg)
+        src_year = Path("src").joinpath(year_pkg)
 
         if self.day is None:
             for entry in reversed(sorted(list(src_year.iterdir()))):
@@ -95,13 +113,14 @@ class AdventOfCode:
                     break
         self.day = self.day or 1
         if self.day < 1:
-            raise click.ClickException("On the zeroth day, God created light, doesn't quite have the same right to it")
+            raise click.ClickException("On the zeroth day, God created light, doesn't quite have the same ring to it")
         if self.day > 25:
             raise click.ClickException("Nothing can exist after December 25!")
 
-        input_path = io_year.joinpath("input", f"{self.formatted_day}.in")
-        day_path = src_year.joinpath(f"{self.formatted_day}.py")
-        runner_path = io_year.joinpath("runner", f"runner_{self.formatted_day}.py")
+        day_file_without_ext = AdventOfCode.formatted_day(self.day)
+        input_path = io_year.joinpath("input", f"{day_file_without_ext}.in")
+        day_path = src_year.joinpath(f"{day_file_without_ext}.py")
+        runner_path = io_year.joinpath("runner", f"runner_{day_file_without_ext}.py")
 
         for path in [input_path, day_path, runner_path]:
             if path.exists():
@@ -117,14 +136,12 @@ class AdventOfCode:
 
 @click.command()
 @click.option("-y", "--year", "year", type=int, default=datetime.now().year)
-@click.option("-p", "--parts", "part", type=int, default=2)
 @click.argument("day", required=False, default=None, type=int)
+@click.option("-p", "--parts", "parts", type=int, default=2)
 def cli(year: int, day: int | None, parts: int) -> None:
     new_day = AdventOfCode(year, day, parts)
     new_day.sunrise()
 
 
 if __name__ == "__main__":
-    # cli(sys.argv[1:])
-    day = AdventOfCode(202, 25, 3)
-    day.sunrise()
+    cli(sys.argv[1:])

@@ -7,6 +7,8 @@ from typing import Any
 from utils import create_banner
 from utils import root_dir
 
+from aoc import AdventOfCode
+
 
 class Puzzle:
     def __init__(self):
@@ -74,9 +76,11 @@ class Puzzle:
         return [list(line) for line in self.get_input_lines(data)]
 
     def get_raw_input(self) -> str:
-        input_path = self.input_dir.joinpath(f"d{self.day:02}p{self.part:02}.in")
+        formatted_day = AdventOfCode.formatted_day(self.day)
+        formatted_part = AdventOfCode.formatted_part(self.part)
+        input_path = self.input_dir.joinpath(f"{formatted_day}{formatted_part}.in")
         if not input_path.exists():
-            input_path = self.input_dir.joinpath(f"d{self.day:02}.in")
+            input_path = self.input_dir.joinpath(f"{formatted_day}.in")
         return self.get_data(input_path)
 
     def create_output_path(self, path: Path | str) -> Path:
