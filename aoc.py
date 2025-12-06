@@ -1,5 +1,4 @@
 import re
-import sys
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -78,11 +77,13 @@ class AdventOfCode:
             from runner import Runner
 
             if __name__ == '__main__':
-                data = None
+                data = '''
+
+                '''
 
                 runner= Runner({self.year}, {self.day}, {self.parts})
                 runner.add_test(1, data, None)
-                #runner.run()
+                runner.run()
         """
         content = strip_code(runner_code)
         return content
@@ -144,4 +145,4 @@ def cli(year: int, day: int | None, parts: int) -> None:
 
 
 if __name__ == "__main__":
-    cli(sys.argv[1:])
+    cli()
