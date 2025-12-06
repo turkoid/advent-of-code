@@ -1,7 +1,7 @@
 from puzzle import Puzzle
 
 
-class Day1Part1(Puzzle[list[int], int]):
+class Day1Part1(Puzzle):
     def parse_data(self, data: str) -> list[int]:
         instructions = self.get_input_lines(data)
         rotations = []
