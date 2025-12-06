@@ -6,6 +6,7 @@ from typing import Any
 
 import click
 from utils import create_banner
+from utils import crop
 from utils import root_dir
 
 from aoc import AdventOfCode
@@ -52,16 +53,15 @@ class Puzzle:
         return path.read_text()
 
     def get_input_groups(self, data: str) -> list[list[str]]:
-        data = data.strip()
         current_lines = []
         line_groups = [current_lines]
         for line in data.splitlines():
-            line = line.strip()
-            if len(line) == 0:
+            if line.strip() == "":
                 current_lines = []
                 line_groups.append(current_lines)
             else:
                 current_lines.append(line)
+        line_groups = [crop(lines) for lines in line_groups if lines]
         return line_groups
 
     def get_input_lines(self, data: str) -> list[str]:
@@ -111,7 +111,7 @@ class Puzzle:
         for i, (data, expected) in enumerate(tests):
             self.logs.clear()
             self.log(create_banner(f"{self.full_name} - TEST {i}"))
-            solution = self.solution(self.parse_data(data.strip()))
+            solution = self.solution(self.parse_data(data))
             if solution != expected:
                 msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
                 self.log("\n".join(str(part) for part in msg))
