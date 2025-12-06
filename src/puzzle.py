@@ -4,6 +4,7 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 
+import click
 from utils import create_banner
 from utils import root_dir
 
@@ -100,9 +101,9 @@ class Puzzle:
         if self.test(tests):
             self.debug = debug
             self.logs.clear()
-            print(create_banner(f"{self.full_name} - SOLUTION"))
+            click.echo(create_banner(f"{self.full_name} - SOLUTION"))
             solution = self.solution(self.parse_data(self.get_raw_input()))
-            print(solution)
+            click.echo(solution)
 
     def test(self, tests: list[tuple[str, Any]] | None) -> bool:
         if not tests:
@@ -122,7 +123,7 @@ class Puzzle:
         msg = " ".join(str(arg) for arg in args)
         self.logs.append(msg)
         if self.debug:
-            print(msg)
+            click.echo(msg)
 
     def dump_logs(self) -> None:
-        print("\n".join(self.logs))
+        click.echo("\n".join(self.logs))
