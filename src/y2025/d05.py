@@ -150,6 +150,8 @@ class Day5Part2(Puzzle):
         self.log(diff)
 
     def solution(self, parsed_data: list[tuple[int, int]]) -> int:
+        LOWER_BOUND = 0
+        UPPER_BOUND = 1
         divider = click.style(" " * 100, bg="blue")
         self.log(f"parsed_data={self._pretty_ranges(parsed_data)}")
         self.log(divider)
@@ -170,6 +172,10 @@ class Day5Part2(Puzzle):
                     continue
                 end_index = i + 1
 
+            if (prev_index := start_index - 1) >= 0 and fresh_id_ranges[prev_index][UPPER_BOUND] + 1 == parsed_lb:
+                start_index = prev_index
+            if end_index < len(fresh_id_ranges) and fresh_id_ranges[end_index][LOWER_BOUND] - 1 == parsed_ub:
+                end_index += 1
             self._update_ranges(fresh_id_ranges, parsed_lb, parsed_ub, start_index, end_index)
             self.log(divider)
 
