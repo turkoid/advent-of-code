@@ -70,6 +70,7 @@ class AdventOfCode:
             """
             content.append(strip_code(day_code))
             content.append("")
+            content.append("")
         return "\n".join(content)
 
     def generate_runner_content(self) -> str:
@@ -85,7 +86,7 @@ class AdventOfCode:
                 runner.add_test(1, data, None)
                 runner.run()
         """
-        content = strip_code(runner_code)
+        content = f"{strip_code(runner_code)}\n"
         return content
 
     def generate_file(self, path: Path, content_gen: Callable[[], str] | None = None) -> None:
