@@ -27,6 +27,7 @@ class Puzzle(ABC):
         self.debug: bool = False
         self.logs: list[str] = []
         self._divider_width: int = 42
+        self._in_test: bool = False
 
     @property
     def name(self) -> str:
@@ -92,11 +93,11 @@ class Puzzle(ABC):
         output_path.mkdir(parents=True, exist_ok=True)
         return output_path
 
-    def print_header(self, message: str, update_divider_width: bool = False) -> None:
+    def create_header(self, message: str, update_divider_width: bool = False) -> str:
         banner = create_banner(f"{self.full_name} - {message}")
         if update_divider_width:
             self._divider_width = max(len(line) for line in banner.splitlines())
-        click.echo(banner)
+        return banner
 
     def print_divider(self, width: int | None = None) -> None:
         if width is None:
@@ -126,23 +127,33 @@ class Puzzle(ABC):
         if self.test(tests):
             self.debug = debug
             self.logs.clear()
-            self.print_header("SOLUTION", True)
-            click.echo(create_banner(f"{self.full_name} - SOLUTION"))
+            self.echo(self.create_header("SOLUTION", True))
             solution = self.solution(self.parse_data(self.get_puzzle_input()))
             if expected is MISSING or self.is_solved(solution, expected):
-                click.echo(solution)
+                self.echo(solution)
 
     def test(self, tests: list[tuple[str, Any]] | None) -> bool:
         if not tests:
             return True
-        for i, (data, expected) in enumerate(tests):
-            self.logs.clear()
-            self.print_header(f"TEST {i}", True)
-            solution = self.solution(self.parse_data(data))
-            if not self.is_solved(solution, expected):
-                return False
-            self.print_divider()
+
+        try:
+            self._in_test = True
+            for i, (data, expected) in enumerate(tests):
+                self.logs.clear()
+                self.log(self.create_header(f"TEST {i}", True))
+                solution = self.solution(self.parse_data(data))
+                if not self.is_solved(solution, expected):
+                    return False
+                self.print_divider()
+        finally:
+            self._in_test = False
         return True
+
+    def echo(self, *args) -> None:
+        if self._in_test:
+            self.log(*args)
+        else:
+            click.echo(*args)
 
     def log(self, *args) -> None:
         msg = " ".join(str(arg) for arg in args)
