@@ -20,7 +20,7 @@ class Runner:
         self.tests.setdefault(part, []).append((data, expected))
         self.runnable[part] = True
 
-    def add_solution(self, part: int, solution: Any) -> None:
+    def set_solution(self, part: int, solution: Any) -> None:
         self.solutions[part] = solution
 
     def enable(self, part: int) -> None:
