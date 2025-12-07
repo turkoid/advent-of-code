@@ -4,6 +4,8 @@ from typing import Any
 
 import click
 
+MISSING = object()
+
 
 def root_dir() -> Path:
     return Path(__file__).parent.parent

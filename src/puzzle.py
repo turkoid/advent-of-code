@@ -7,6 +7,7 @@ from typing import Any
 import click
 from utils import create_banner
 from utils import crop
+from utils import MISSING
 from utils import root_dir
 
 from aoc import AdventOfCode
@@ -97,13 +98,24 @@ class Puzzle:
     def solution(self, parsed_data: None) -> None:
         pass
 
-    def solve(self, tests: list[tuple[str, Any]] | None = None, debug: bool = False) -> None:
+    def is_solved(self, solution: Any, expected: Any) -> bool:
+        if solution == expected:
+            return True
+        msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
+        self.log("\n".join(str(part) for part in msg))
+        self.dump_logs()
+        return False
+
+    def solve(
+        self, tests: list[tuple[str, Any]] | None = None, *, expected: Any = MISSING, debug: bool = False
+    ) -> None:
         if self.test(tests):
             self.debug = debug
             self.logs.clear()
             click.echo(create_banner(f"{self.full_name} - SOLUTION"))
             solution = self.solution(self.parse_data(self.get_raw_input()))
-            click.echo(solution)
+            if expected is MISSING or self.is_solved(solution, expected):
+                click.echo(solution)
 
     def test(self, tests: list[tuple[str, Any]] | None) -> bool:
         if not tests:
@@ -112,10 +124,7 @@ class Puzzle:
             self.logs.clear()
             self.log(create_banner(f"{self.full_name} - TEST {i}"))
             solution = self.solution(self.parse_data(data))
-            if solution != expected:
-                msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
-                self.log("\n".join(str(part) for part in msg))
-                self.dump_logs()
+            if not self.is_solved(solution, expected):
                 return False
         return True
 

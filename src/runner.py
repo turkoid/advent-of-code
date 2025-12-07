@@ -1,6 +1,8 @@
 import importlib
 from typing import Any
 
+from utils import MISSING
+
 from aoc import AdventOfCode
 
 
@@ -11,11 +13,15 @@ class Runner:
         self.parts = parts
         self.runnable: dict[int, bool] = {}
         self.tests: dict[int, list[tuple[str, Any]]] = {}
+        self.solutions: dict[int, Any] = {}
         self.module = importlib.import_module(AdventOfCode.puzzle_module(self.year, self.day))
 
     def add_test(self, part: int, data: str, expected: Any) -> None:
         self.tests.setdefault(part, []).append((data, expected))
         self.runnable[part] = True
+
+    def add_solution(self, part: int, solution: Any) -> None:
+        self.solutions[part] = solution
 
     def enable(self, part: int) -> None:
         self.runnable[part] = True
@@ -37,4 +43,4 @@ class Runner:
             puzzle_class = getattr(self.module, AdventOfCode.puzzle_class(self.day, part))
             puzzle = puzzle_class()
             tests = self.tests.get(part, [])
-            puzzle.solve(tests, debug=debug)
+            puzzle.solve(tests, expected=self.solutions.get(part, MISSING), debug=debug)
