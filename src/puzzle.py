@@ -1,5 +1,6 @@
 import inspect
 import re
+from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
 from typing import Any
@@ -13,7 +14,7 @@ from utils import root_dir
 from aoc import AdventOfCode
 
 
-class Puzzle:
+class Puzzle(ABC):
     def __init__(self):
         if match := re.match(r"Day(\d+)Part(\d+)", self.__class__.__name__):
             self.day = int(match.group(1))
@@ -25,6 +26,7 @@ class Puzzle:
         self.year = int(year_folder.name[1:])
         self.debug: bool = False
         self.logs: list[str] = []
+        self._divider_width: int = 42
 
     @property
     def name(self) -> str:
@@ -50,7 +52,7 @@ class Puzzle:
     def output_dir(self) -> Path:
         return self.io_dir.joinpath("output")
 
-    def get_data(self, path: Path) -> str:
+    def get_file_data(self, path: Path) -> str:
         return path.read_text()
 
     def get_input_groups(self, data: str) -> list[list[str]]:
@@ -77,18 +79,30 @@ class Puzzle:
     def get_input_grid(self, data: str) -> list[list[str]]:
         return [list(line) for line in self.get_input_lines(data)]
 
-    def get_raw_input(self) -> str:
+    def get_puzzle_input(self) -> str:
         formatted_day = AdventOfCode.formatted_day(self.day)
         formatted_part = AdventOfCode.formatted_part(self.part)
         input_path = self.input_dir.joinpath(f"{formatted_day}{formatted_part}.in")
         if not input_path.exists():
             input_path = self.input_dir.joinpath(f"{formatted_day}.in")
-        return self.get_data(input_path)
+        return self.get_file_data(input_path)
 
     def create_output_path(self, path: Path | str) -> Path:
         output_path = self.output_dir.joinpath(path)
         output_path.mkdir(parents=True, exist_ok=True)
         return output_path
+
+    def print_header(self, message: str, update_divider_width: bool = False) -> None:
+        banner = create_banner(f"{self.full_name} - {message}")
+        if update_divider_width:
+            self._divider_width = max(len(line) for line in banner.splitlines())
+        click.echo(banner)
+
+    def print_divider(self, width: int | None = None) -> None:
+        if width is None:
+            width = self._divider_width
+        width = max(width, 1)
+        self.log(click.style("=" * width, fg="black", bg="blue"))
 
     @abstractmethod
     def parse_data(self, data: str) -> None:
@@ -112,8 +126,9 @@ class Puzzle:
         if self.test(tests):
             self.debug = debug
             self.logs.clear()
+            self.print_header("SOLUTION", True)
             click.echo(create_banner(f"{self.full_name} - SOLUTION"))
-            solution = self.solution(self.parse_data(self.get_raw_input()))
+            solution = self.solution(self.parse_data(self.get_puzzle_input()))
             if expected is MISSING or self.is_solved(solution, expected):
                 click.echo(solution)
 
@@ -122,10 +137,11 @@ class Puzzle:
             return True
         for i, (data, expected) in enumerate(tests):
             self.logs.clear()
-            self.log(create_banner(f"{self.full_name} - TEST {i}"))
+            self.print_header(f"TEST {i}", True)
             solution = self.solution(self.parse_data(data))
             if not self.is_solved(solution, expected):
                 return False
+            self.print_divider()
         return True
 
     def log(self, *args) -> None:
