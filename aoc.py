@@ -83,7 +83,7 @@ class AdventOfCode:
                 '''
 
                 runner= Runner({self.year}, {self.day}, {self.parts})
-                runner.add_test(1, data, None)
+                runner.add_test(1, data, 'Not Implemented')
                 runner.run()
         """
         content = f"{strip_code(runner_code)}\n"
