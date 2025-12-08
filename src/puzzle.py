@@ -125,12 +125,16 @@ class Puzzle(ABC):
         self, tests: list[tuple[str, Any]] | None = None, *, expected: Any = MISSING, debug: bool = False
     ) -> None:
         if self.test(tests):
-            self.debug = debug
-            self.logs.clear()
-            self.echo(self.create_header("SOLUTION", True))
-            solution = self.solution(self.parse_data(self.get_puzzle_input()))
-            if expected is MISSING or self.is_solved(solution, expected):
-                self.echo(solution)
+            try:
+                self.debug = debug
+                self.logs.clear()
+                self.echo(self.create_header("SOLUTION", True))
+                solution = self.solution(self.parse_data(self.get_puzzle_input()))
+                if expected is MISSING or self.is_solved(solution, expected):
+                    self.echo(solution)
+            except Exception as ex:
+                self.dump_logs()
+                raise ex
 
     def test(self, tests: list[tuple[str, Any]] | None) -> bool:
         if not tests:
@@ -145,6 +149,9 @@ class Puzzle(ABC):
                 if not self.is_solved(solution, expected):
                     return False
                 self.print_divider()
+        except Exception as ex:
+            self.dump_logs()
+            raise ex
         finally:
             self._in_test = False
         return True
