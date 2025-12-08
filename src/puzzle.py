@@ -170,3 +170,37 @@ class Puzzle(ABC):
 
     def dump_logs(self) -> None:
         click.echo("\n".join(self.logs))
+
+    @property
+    def style(self):
+        return click.style
+
+    def red(self, text: Any) -> str:
+        return self.style(text, fg="red")
+
+    def green(self, text: Any) -> str:
+        return self.style(text, fg="green")
+
+    def blue(self, text: Any) -> str:
+        return self.style(text, fg="blue")
+
+    def yellow(self, text: Any) -> str:
+        return self.style(text, fg="yellow")
+
+    def magenta(self, text: Any) -> str:
+        return self.style(text, fg="magenta")
+
+    def cyan(self, text: Any) -> str:
+        return self.style(text, fg="cyan")
+
+    def success(self, text: Any) -> str:
+        return self.green(text)
+
+    def fail(self, text: Any) -> str:
+        return self.red(text)
+
+    def info(self, text: Any) -> str:
+        return self.yellow(text)
+
+    def highlight(self, text: Any) -> str:
+        return self.magenta(text)
