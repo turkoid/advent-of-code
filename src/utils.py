@@ -1,10 +1,17 @@
 import itertools
 from pathlib import Path
 from typing import Any
+from typing import NamedTuple
 
 import click
 
-MISSING = object()
+
+class MissingType:
+    def __repr__(self) -> str:
+        return "MISSING"
+
+
+MISSING = MissingType()
 
 
 def root_dir() -> Path:
@@ -64,3 +71,8 @@ def concat_string_lists(*lists: list[str], fill_char: str = " ", sep: str = " ")
         ]
         buffer.append(sep.join(line_buffer))
     return "\n".join(buffer)
+
+
+class Point[int](NamedTuple):
+    x: int
+    y: int
