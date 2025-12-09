@@ -39,6 +39,10 @@ class AdventOfCode:
         return f"p{part:02}"
 
     @staticmethod
+    def common_class(day: int) -> str:
+        return f"Day{day}"
+
+    @staticmethod
     def puzzle_class(day: int, part: int) -> str:
         return f"Day{day}Part{part}"
 
@@ -54,14 +58,19 @@ class AdventOfCode:
 
     def generate_day_content(self) -> str:
         BASE_CLASS = "Puzzle"
+        COMMON_CLASS = AdventOfCode.common_class(self.day)
         content = list()
         content.append(f"from puzzle import {BASE_CLASS}")
+        content.append("")
+        content.append("")
+        content.append(f"class {COMMON_CLASS}({BASE_CLASS}):")
+        content.append("    pass")
         content.append("")
         content.append("")
         for i in range(self.parts):
             part = i + 1
             day_code = f"""
-                class {AdventOfCode.puzzle_class(self.day, part)}({BASE_CLASS}):
+                class {AdventOfCode.puzzle_class(self.day, part)}({COMMON_CLASS}):
                     def parse_data(self, data: str) -> None:
                         pass
 
