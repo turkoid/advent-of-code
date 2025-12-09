@@ -1,6 +1,7 @@
 import math
 import operator
 from functools import reduce
+from operator import itemgetter
 from typing import NamedTuple
 from typing import Self
 
@@ -91,4 +92,66 @@ class Day8Part1(Puzzle):
 
 
 class Day8Part2(Day8Part1):
-    pass
+    def parse_data(self, data: str) -> list[Point3D]:
+        raw_points, _ = self.get_input_groups(data)
+        points = [Point3D(*[int(n) for n in coords.split(",")]) for coords in raw_points]
+        return points
+
+    def _styled_junctions(self, *junctions: Point3D) -> str:
+        return "->".join(self.cyan(j) for j in junctions)
+
+    def _styled_circuit(self, circuit: dict[Point3D, bool]) -> str:
+        return self._styled_junctions(*circuit.keys())
+
+    def solution(self, parsed_data: list[Point3D]) -> int:
+        self.log("\n".join(str(pt) for pt in parsed_data))
+        self.print_divider()
+
+        distances: list[tuple[int, tuple[Point3D, Point3D]]] = []
+        for i, junction_a in enumerate(parsed_data[:-1]):
+            for junction_b in parsed_data[i + 1 :]:
+                distance = junction_a.sort_distance(junction_b)
+                distances.append((distance, (junction_a, junction_b)))
+
+        connected_junctions: dict[Point3D, dict[Point3D, bool]] = {}
+        for conn, (_, (junction_a, junction_b)) in enumerate(sorted(distances, key=itemgetter(0)), start=1):
+            self.log(f"Making connection {self.highlight(conn)}: {self._styled_junctions(junction_a, junction_b)}")
+            circuit_a = connected_junctions.get(junction_a, None)
+            circuit_b = connected_junctions.get(junction_b, None)
+            if circuit_a is None and circuit_b is None:
+                self.log("++ New circuit!")
+                circuit = {junction_a: True, junction_b: True}
+                connected_junctions[junction_a] = circuit
+                connected_junctions[junction_b] = circuit
+            elif circuit_a is circuit_b:
+                self.log("== Both junctions in same circuit")
+            elif circuit_a and circuit_b:
+                self.log(f">< Merging 2 circuits: {self._styled_circuit(circuit_a)}+{self._styled_circuit(circuit_b)}")
+                circuit_a.update(circuit_b)
+                for junction in circuit_a:
+                    connected_junctions[junction] = circuit_a
+            else:
+                params = [
+                    (circuit_a, junction_b),
+                    (circuit_b, junction_a),
+                ]
+                for circuit, new_junction in params:
+                    if circuit:
+                        self.log(f">> Adding {self.cyan(new_junction)} to {self._styled_circuit(circuit)}")
+                        circuit[new_junction] = True
+                        connected_junctions[new_junction] = circuit
+
+            if len(connected_junctions) == len(parsed_data) - 1:
+                break
+
+        self.print_divider()
+        free_junction = None
+        for junction in parsed_data:
+            if junction not in connected_junctions:
+                free_junction = junction
+                break
+        final_distances = [(free_junction.sort_distance(junction), junction) for junction in connected_junctions]
+        final_distances = sorted(final_distances, key=itemgetter(0))
+        connect_junction = final_distances[0][1]
+        self.log(f"Final connection {self._styled_junctions(free_junction, connect_junction)}")
+        return free_junction.x * connect_junction.x
