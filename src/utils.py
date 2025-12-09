@@ -76,3 +76,6 @@ def concat_string_lists(*lists: list[str], fill_char: str = " ", sep: str = " ")
 class Point[int](NamedTuple):
     x: int
     y: int
+
+    def __repr__(self) -> str:
+        return f"({self.x}, {self.y})"
