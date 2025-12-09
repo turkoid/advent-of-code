@@ -99,11 +99,14 @@ class Puzzle(ABC):
             self._divider_width = max(len(line) for line in banner.splitlines())
         return banner
 
-    def print_divider(self, width: int | None = None) -> None:
+    def create_divider(self, width: int | None = None) -> str:
         if width is None:
             width = self._divider_width
         width = max(width, 1)
-        self.log(click.style("=" * width, fg="black", bg="blue"))
+        return click.style("=" * width, fg="black", bg="blue")
+
+    def print_divider(self, width: int | None = None) -> None:
+        self.log(self.create_divider(width))
 
     @abstractmethod
     def parse_data(self, data: str) -> None:
@@ -156,17 +159,18 @@ class Puzzle(ABC):
             self._in_test = False
         return True
 
-    def echo(self, *args) -> None:
+    def echo(self, *args, condition: bool = True) -> None:
         if self._in_test:
             self.log(*args)
         else:
             click.echo(*args)
 
-    def log(self, *args) -> None:
-        msg = " ".join(str(arg) for arg in args)
-        self.logs.append(msg)
-        if self.debug:
-            click.echo(msg)
+    def log(self, *args, condition: bool = True) -> None:
+        if condition:
+            msg = " ".join(str(arg) for arg in args)
+            self.logs.append(msg)
+            if self.debug:
+                click.echo(msg)
 
     def dump_logs(self) -> None:
         click.echo("\n".join(self.logs))
