@@ -80,7 +80,7 @@ class Point[T](NamedTuple):
     y: T
 
     @overload
-    def equals(self, point: Self | tuple[int, int]) -> bool:
+    def equals(self, point: Self | tuple[T, T]) -> bool:
         pass
 
     @overload
