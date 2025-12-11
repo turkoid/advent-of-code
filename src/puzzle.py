@@ -144,6 +144,9 @@ class Puzzle(ABC):
         return False
 
     def test(self, tests: list[tuple[str, Any]] | None, debugging: bool = False) -> bool:
+        if not tests:
+            return True
+
         for i, (data, expected) in enumerate(tests):
             with capture_output(debugging) as ctx:
                 click.echo(self.create_header(f"TEST {i}", True))
