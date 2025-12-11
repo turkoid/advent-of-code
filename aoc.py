@@ -5,8 +5,11 @@ from pathlib import Path
 
 import click
 
+SINGLE_LINE = ""
+DOUBLE_LINE = "\n"
 
-def strip_code(code: str) -> str:
+
+def strip_code(code: str, indent: int = 0) -> str:
     code = code.strip(" ").strip("\n")
     lines = code.splitlines()
     left_margin = 0
@@ -14,8 +17,9 @@ def strip_code(code: str) -> str:
         if c != " ":
             left_margin = i
             break
-    if left_margin > 0:
-        lines = [line[left_margin:] for line in lines]
+    if left_margin > 0 or indent > 0:
+        indent_str = " " * (indent * 4)
+        lines = [f"{indent_str}{line[left_margin:]}" for line in lines]
         code = "\n".join(lines)
     return code
 
@@ -57,46 +61,59 @@ class AdventOfCode:
         return ".".join(module)
 
     def generate_day_content(self) -> str:
-        BASE_CLASS = "Puzzle"
+        PUZZLE_CLASS = "Puzzle"
         COMMON_CLASS = AdventOfCode.common_class(self.day)
-        content = list()
-        content.append(f"from puzzle import {BASE_CLASS}")
-        content.append("")
-        content.append("")
-        content.append(f"class {COMMON_CLASS}({BASE_CLASS}):")
-        content.append("    pass")
-        content.append("")
-        content.append("")
-        for i in range(self.parts):
-            part = i + 1
-            day_code = f"""
+
+        raw_content = f"""
+            from puzzle import {PUZZLE_CLASS}
+
+
+            class {COMMON_CLASS}({PUZZLE_CLASS}):
+                pass
+        """
+        content = [strip_code(raw_content)]
+        for part in range(1, self.parts + 1):
+            raw_content = f"""
                 class {AdventOfCode.puzzle_class(self.day, part)}({COMMON_CLASS}):
                     def parse_data(self, data: str) -> None:
                         pass
 
                     def solution(self, parsed_data: None) -> None:
-                        pass
+                        raise NotImplementedError
             """
-            content.append(strip_code(day_code))
-            content.append("")
-            content.append("")
+            content.extend([DOUBLE_LINE, strip_code(raw_content)])
+        content.append(SINGLE_LINE)
+
         return "\n".join(content)
 
     def generate_runner_content(self) -> str:
-        runner_code = f"""
-            from runner import Runner
+        RUNNER_CLASS = "Runner"
+        raw_content = f"""
+            from runner import {RUNNER_CLASS}
 
             if __name__ == '__main__':
                 data = '''
 
                 '''
 
-                runner= Runner({self.year}, {self.day}, {self.parts})
-                runner.add_test(1, data, 'Not Implemented')
-                runner.run()
+                runner = {RUNNER_CLASS}({self.year}, {self.day}, {self.parts})
         """
-        content = f"{strip_code(runner_code)}\n"
-        return content
+        content = [strip_code(raw_content), SINGLE_LINE]
+        for part in range(1, self.parts + 1):
+            raw_content = f"""
+                # part {part}
+                runner.add_test({part}, data, NotImplemented)
+                runner.set_solution({part}, NotImplemented)
+            """
+            content.extend([strip_code(raw_content, 1), SINGLE_LINE])
+
+        raw_content = """
+            # do it
+            runner.run()
+        """
+        content.extend([strip_code(raw_content, 1), SINGLE_LINE])
+
+        return "\n".join(content)
 
     def generate_file(self, path: Path, content_gen: Callable[[], str] | None = None) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
