@@ -53,11 +53,21 @@ Puzzle discovery layout:
 
 ### Usage
 
+```
+Usage: aoc.py [OPTIONS] [DAY]
+
+Options:
+  -y, --year INTEGER   Defaults to the current year
+  -p, --parts INTEGER  [default: 2]
+  --recreate           Generates missing files only
+  --help               Show this message and exit.
+```
+
 1) Generate a new day
 
-All options/arguments default to current year, next available day, and 2 parts
+`aoc.py` defaults to the first available day
 
-The generator asks for confirmation before creating files.
+The script asks for confirmation before creating files.
 ```
 uv run aoc.py                                       # generate next missing day with 2 parts for the current year
 uv run python aoc.py --year 2025 --parts 3          # generate next missing day with 3 parts for year 2025

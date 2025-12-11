@@ -25,10 +25,11 @@ def strip_code(code: str, indent: int = 0) -> str:
 
 
 class AdventOfCode:
-    def __init__(self, year: int, day: int | None, parts: int):
+    def __init__(self, year: int, day: int | None, parts: int, recreate: bool):
         self.year = year
         self.day = day
         self.parts = parts
+        self.recreate = recreate
 
     @staticmethod
     def formatted_year(year: int) -> str:
@@ -69,15 +70,13 @@ class AdventOfCode:
 
 
             class {COMMON_CLASS}({PUZZLE_CLASS}):
-                pass
+                def parse_data(self, data: str) -> None:
+                    pass
         """
         content = [strip_code(raw_content)]
         for part in range(1, self.parts + 1):
             raw_content = f"""
                 class {AdventOfCode.puzzle_class(self.day, part)}({COMMON_CLASS}):
-                    def parse_data(self, data: str) -> None:
-                        pass
-
                     def solution(self, parsed_data: None) -> None:
                         raise NotImplementedError
             """
@@ -116,6 +115,9 @@ class AdventOfCode:
         return "\n".join(content)
 
     def generate_file(self, path: Path, content_gen: Callable[[], str] | None = None) -> None:
+        if path.exists():
+            click.echo(f"Skipping {path}")
+            return
         path.parent.mkdir(parents=True, exist_ok=True)
         if content_gen:
             content = content_gen()
@@ -150,9 +152,10 @@ class AdventOfCode:
         day_path = src_year.joinpath(f"{day_file_without_ext}.py")
         runner_path = io_year.joinpath("runner", f"runner_{day_file_without_ext}.py")
 
-        for path in [input_path, day_path, runner_path]:
-            if path.exists():
-                raise click.ClickException(f"{path} already exists!")
+        if not self.recreate:
+            for path in [input_path, day_path, runner_path]:
+                if path.exists():
+                    raise click.ClickException(f"{path} already exists!")
 
         click.echo(f"Generating Year {self.year}, Day {self.day}, {self.parts} Parts...")
         if click.confirm("Do you want to continue?", default=True):
@@ -163,11 +166,12 @@ class AdventOfCode:
 
 
 @click.command()
-@click.option("-y", "--year", "year", type=int, default=datetime.now().year)
+@click.option("-y", "--year", "year", type=int, default=datetime.now().year, help="Defaults to the current year")
 @click.argument("day", required=False, default=None, type=int)
-@click.option("-p", "--parts", "parts", type=int, default=2)
-def cli(year: int, day: int | None, parts: int) -> None:
-    new_day = AdventOfCode(year, day, parts)
+@click.option("-p", "--parts", "parts", type=int, default=2, show_default=True)
+@click.option("--recreate", is_flag=True, help="Generates missing files only")
+def cli(year: int, day: int | None, parts: int, recreate: bool) -> None:
+    new_day = AdventOfCode(year, day, parts, recreate)
     new_day.sunrise()
 
 
