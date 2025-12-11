@@ -46,3 +46,7 @@ class Runner:
             tests = self.tests.get(part, [])
             if not puzzle.solve(tests, expected=self.solutions.get(part, MISSING), debugging=debugging):
                 break
+
+
+class Daywalker(Runner):
+    pass
