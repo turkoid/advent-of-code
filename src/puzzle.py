@@ -1,11 +1,18 @@
 import inspect
+import io
 import re
 from abc import ABC
 from abc import abstractmethod
+from contextlib import contextmanager
+from contextlib import redirect_stderr
+from contextlib import redirect_stdout
+from functools import wraps
 from pathlib import Path
 from typing import Any
+from typing import Generator
 
 import click
+from utils import Color
 from utils import create_banner
 from utils import crop
 from utils import MISSING
@@ -24,10 +31,7 @@ class Puzzle(ABC):
         file = Path(inspect.getfile(self.__class__))
         year_folder = file.absolute().parent
         self.year = int(year_folder.name[1:])
-        self.debug: bool = False
-        self.logs: list[str] = []
         self._divider_width: int = 42
-        self._in_test: bool = False
 
     @property
     def name(self) -> str:
@@ -105,8 +109,11 @@ class Puzzle(ABC):
         width = max(width, 1)
         return click.style("=" * width, fg="black", bg="blue")
 
-    def print_divider(self, width: int | None = None) -> None:
-        self.log(self.create_divider(width))
+    def echo_divider(self, width: int | None = None) -> None:
+        click.echo(self.create_divider(width))
+
+    def echo(self, *args: Any) -> None:
+        click.echo(" ".join(str(arg) for arg in args))
 
     @abstractmethod
     def parse_data(self, data: str) -> None:
@@ -116,95 +123,79 @@ class Puzzle(ABC):
     def solution(self, parsed_data: None) -> None:
         pass
 
-    def is_solved(self, solution: Any, expected: Any) -> bool:
+    def _check_solution(self, solution: Any, expected: Any) -> bool:
         if solution == expected:
             return True
-        msg = ["FAILED!", "Expected:", expected, "Solution:", solution]
-        self.log("\n".join(str(part) for part in msg))
-        self.dump_logs()
+        click.echo(f"{Color.fail('FAILED!')}\nExpected:\n{expected}\nSolution:\n{solution}")
         return False
 
     def solve(
-        self, tests: list[tuple[str, Any]] | None = None, *, expected: Any = MISSING, debug: bool = False
-    ) -> None:
-        if self.test(tests):
-            try:
-                self.debug = debug
-                self.logs.clear()
-                self.echo(self.create_header("SOLUTION", True))
+        self, tests: list[tuple[str, Any]] | None = None, *, expected: Any = MISSING, debugging: bool = False
+    ) -> bool:
+        if self.test(tests, debugging):
+            click.echo(self.create_header("SOLUTION", True))
+            with capture_output(debugging) as ctx:
                 solution = self.solution(self.parse_data(self.get_puzzle_input()))
-                if expected is MISSING or self.is_solved(solution, expected):
-                    self.echo(solution)
-            except Exception as ex:
-                self.dump_logs()
-                raise ex
-
-    def test(self, tests: list[tuple[str, Any]] | None) -> bool:
-        if not tests:
-            return True
-
-        try:
-            self._in_test = True
-            for i, (data, expected) in enumerate(tests):
-                self.logs.clear()
-                self.log(self.create_header(f"TEST {i}", True))
-                solution = self.solution(self.parse_data(data))
-                if not self.is_solved(solution, expected):
+                if expected is not MISSING and not self._check_solution(solution, expected):
+                    ctx.flush = True
                     return False
-                self.print_divider()
-        except Exception as ex:
-            self.dump_logs()
-            raise ex
-        finally:
-            self._in_test = False
+            click.echo(solution)
+            return True
+        return False
+
+    def test(self, tests: list[tuple[str, Any]] | None, debugging: bool = False) -> bool:
+        for i, (data, expected) in enumerate(tests):
+            with capture_output(debugging) as ctx:
+                click.echo(self.create_header(f"TEST {i}", True))
+                solution = self.solution(self.parse_data(data))
+                if not self._check_solution(solution, expected):
+                    ctx.flush = True
+                    return False
+                self.echo_divider()
         return True
 
-    def echo(self, *args, condition: bool = True) -> None:
-        if self._in_test:
-            self.log(*args)
-        else:
-            click.echo(*args)
 
-    def log(self, *args, condition: bool = True) -> None:
-        if condition:
-            msg = " ".join(str(arg) for arg in args)
-            self.logs.append(msg)
-            if self.debug:
-                click.echo(msg)
+class Context:
+    def __init__(self) -> None:
+        self.flush: bool = False
 
-    def dump_logs(self) -> None:
-        click.echo("\n".join(self.logs))
 
-    @property
-    def style(self):
-        return click.style
+@contextmanager
+def capture_output(passthrough: bool) -> Generator[Context, None, None]:
+    ctx = Context()
 
-    def red(self, text: Any) -> str:
-        return self.style(text, fg="red")
+    if passthrough:
+        yield ctx
+        return
 
-    def green(self, text: Any) -> str:
-        return self.style(text, fg="green")
+    orig_echo = click.echo
+    orig_secho = click.secho
 
-    def blue(self, text: Any) -> str:
-        return self.style(text, fg="blue")
+    @wraps(orig_echo)
+    def patched_echo(*args, **kwargs):
+        if "color" not in kwargs:
+            kwargs["color"] = True
+        return orig_echo(*args, **kwargs)
 
-    def yellow(self, text: Any) -> str:
-        return self.style(text, fg="yellow")
+    @wraps(orig_secho)
+    def patched_secho(*args, **kwargs):
+        if "color" not in kwargs:
+            kwargs["color"] = True
+        return orig_secho(*args, **kwargs)
 
-    def magenta(self, text: Any) -> str:
-        return self.style(text, fg="magenta")
+    click.echo = patched_echo
+    click.secho = patched_secho
 
-    def cyan(self, text: Any) -> str:
-        return self.style(text, fg="cyan")
+    buffer = io.StringIO()
 
-    def success(self, text: Any) -> str:
-        return self.green(text)
-
-    def fail(self, text: Any) -> str:
-        return self.red(text)
-
-    def info(self, text: Any) -> str:
-        return self.yellow(text)
-
-    def highlight(self, text: Any) -> str:
-        return self.magenta(text)
+    try:
+        with redirect_stdout(buffer), redirect_stderr(buffer):
+            yield ctx
+    except Exception as ex:
+        ctx.flush = True
+        raise ex
+    finally:
+        click.echo = orig_echo
+        click.secho = orig_secho
+        if ctx.flush:
+            click.echo(buffer.getvalue(), nl=False)

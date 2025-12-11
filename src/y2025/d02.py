@@ -67,7 +67,7 @@ class Day2Part2(Puzzle):
     def solution(self, parsed_data: list[tuple[str, str]]) -> int:
         invalid_id_sum = 0
         for lower_bound, upper_bound in parsed_data:
-            self.log(f"### id_range=[{lower_bound}-{upper_bound}]")
+            self.echo(f"### id_range=[{lower_bound}-{upper_bound}]")
             cache = {}
             min_id_size = len(lower_bound)
             max_id_size = len(upper_bound)
@@ -82,16 +82,16 @@ class Day2Part2(Puzzle):
                     seq_end = self._find_seq_bound(seq_size, id_size, upper_bound, False)
                     if seq_start > seq_end:
                         continue
-                    self.log(
+                    self.echo(
                         f"{seq_size}x{group_count}: invalid_id_range=[{str(seq_start) * group_count}-{str(seq_end) * group_count}]"
                     )
                     for seq in range(seq_start, seq_end + 1):
                         invalid_id = int(str(seq) * group_count)
                         if invalid_id in cache:
-                            self.log(f"skipping cached id: {invalid_id}")
+                            self.echo(f"skipping cached id: {invalid_id}")
                         else:
                             cache[invalid_id] = True
-                            self.log(f"+{invalid_id=}")
+                            self.echo(f"+{invalid_id=}")
                             invalid_id_sum += invalid_id
         return invalid_id_sum
 

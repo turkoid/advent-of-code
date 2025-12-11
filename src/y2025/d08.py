@@ -6,6 +6,7 @@ from typing import NamedTuple
 from typing import Self
 
 from puzzle import Puzzle
+from utils import Color
 
 
 class Point3D(NamedTuple):
@@ -29,7 +30,7 @@ class Point3D(NamedTuple):
 
 class Day8(Puzzle):
     def _styled_junctions(self, *junctions: Point3D) -> str:
-        return "->".join(self.cyan(j) for j in junctions)
+        return "->".join(Color.cyan(j) for j in junctions)
 
     def _styled_circuit(self, circuit: dict[Point3D, bool]) -> str:
         return self._styled_junctions(*circuit.keys())
@@ -49,18 +50,18 @@ class Day8(Puzzle):
         junction_a: Point3D,
         junction_b: Point3D,
     ):
-        self.log(f"Making connection {self.highlight(connection)}: {self._styled_junctions(junction_a, junction_b)}")
+        self.echo(f"Making connection {Color.highlight(connection)}: {self._styled_junctions(junction_a, junction_b)}")
         circuit_a = connected_junctions.get(junction_a, None)
         circuit_b = connected_junctions.get(junction_b, None)
         if circuit_a is None and circuit_b is None:
-            self.log("++ New circuit!")
+            self.echo("++ New circuit!")
             circuit = {junction_a: True, junction_b: True}
             connected_junctions[junction_a] = circuit
             connected_junctions[junction_b] = circuit
         elif circuit_a is circuit_b:
-            self.log("== Both junctions in same circuit")
+            self.echo("== Both junctions in same circuit")
         elif circuit_a and circuit_b:
-            self.log(f">< Merging 2 circuits: {self._styled_circuit(circuit_a)}+{self._styled_circuit(circuit_b)}")
+            self.echo(f">< Merging 2 circuits: {self._styled_circuit(circuit_a)}+{self._styled_circuit(circuit_b)}")
             circuit_a.update(circuit_b)
             for junction in circuit_a:
                 connected_junctions[junction] = circuit_a
@@ -71,7 +72,7 @@ class Day8(Puzzle):
             ]
             for circuit, new_junction in params:
                 if circuit:
-                    self.log(f">> Adding {self.cyan(new_junction)} to {self._styled_circuit(circuit)}")
+                    self.echo(f">> Adding {Color.cyan(new_junction)} to {self._styled_circuit(circuit)}")
                     circuit[new_junction] = True
                     connected_junctions[new_junction] = circuit
 
@@ -85,23 +86,23 @@ class Day8Part1(Day8):
 
     def solution(self, parsed_data: tuple[list[Point3D], int]) -> int:
         points, max_connections = parsed_data
-        self.log("\n".join(str(pt) for pt in points))
-        self.log(f"{max_connections=}")
-        self.print_divider()
+        self.echo("\n".join(str(pt) for pt in points))
+        self.echo(f"{max_connections=}")
+        self.echo_divider()
 
         distances = self.get_distances(points)
 
         connected_junctions: dict[Point3D, dict[Point3D, bool]] = {}
         for conn, (_, (junction_a, junction_b)) in enumerate(sorted(distances)[:max_connections], start=1):
             self.make_connection(conn, connected_junctions, junction_a, junction_b)
-        self.print_divider()
+        self.echo_divider()
 
         circuits = []
         for circuit in connected_junctions.values():
             if circuit not in circuits:
                 circuits.append(circuit)
         circuits = sorted(circuits, key=len, reverse=True)
-        self.log("\n".join(f"{len(c)}: {self._styled_circuit(c)}" for c in circuits))
+        self.echo("\n".join(f"{len(c)}: {self._styled_circuit(c)}" for c in circuits))
         largest_three_circuits = [len(circuits[i]) if i < len(circuits) else 1 for i in range(3)]
         return reduce(operator.mul, largest_three_circuits)
 
@@ -113,8 +114,8 @@ class Day8Part2(Day8):
         return points
 
     def solution(self, parsed_data: list[Point3D]) -> int:
-        self.log("\n".join(str(pt) for pt in parsed_data))
-        self.print_divider()
+        self.echo("\n".join(str(pt) for pt in parsed_data))
+        self.echo_divider()
 
         distances = self.get_distances(parsed_data)
 
@@ -124,7 +125,7 @@ class Day8Part2(Day8):
             if len(connected_junctions) == len(parsed_data) - 1:
                 break
 
-        self.print_divider()
+        self.echo_divider()
         free_junction = None
         for junction in parsed_data:
             if junction not in connected_junctions:
@@ -133,6 +134,6 @@ class Day8Part2(Day8):
         final_distances = [(free_junction.sort_distance(junction), junction) for junction in connected_junctions]
         final_distances = sorted(final_distances, key=itemgetter(0))
         connect_junction = final_distances[0][1]
-        self.log(f"Final connection {self._styled_junctions(free_junction, connect_junction)}")
+        self.echo(f"Final connection {self._styled_junctions(free_junction, connect_junction)}")
 
         return free_junction.x * connect_junction.x

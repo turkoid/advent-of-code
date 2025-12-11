@@ -19,8 +19,8 @@ class Day5Part1(Puzzle):
 
     def solution(self, parsed_data: tuple[list[tuple[int, int]], list[int]]) -> int:
         fresh_ids, ids = parsed_data
-        self.log(f"{fresh_ids=}")
-        self.log(f"{ids=}")
+        self.echo(f"{fresh_ids=}")
+        self.echo(f"{ids=}")
 
         certified_fresh = 0
         for ingredient_id in ids:
@@ -147,17 +147,17 @@ class Day5Part2(Puzzle):
         middle.append("-" * len(middle[0]) + ">")
 
         diff = concat_string_lists(formatted_ranges[0], middle, formatted_ranges[1])
-        self.log(diff)
+        self.echo(diff)
 
     def solution(self, parsed_data: list[tuple[int, int]]) -> int:
         LOWER_BOUND = 0
         UPPER_BOUND = 1
         divider = click.style(" " * 100, bg="blue")
-        self.log(f"parsed_data={self._pretty_ranges(parsed_data)}")
-        self.log(divider)
+        self.echo(f"parsed_data={self._pretty_ranges(parsed_data)}")
+        self.echo(divider)
         fresh_id_ranges = []
         for parsed_lb, parsed_ub in parsed_data:
-            self.log(f"{self._pretty_range(parsed_lb, parsed_ub)}\n")
+            self.echo(f"{self._pretty_range(parsed_lb, parsed_ub)}\n")
             start_index = 0
             end_index = 0
             for i, (fresh_lb, fresh_ub) in enumerate(fresh_id_ranges):
@@ -177,9 +177,9 @@ class Day5Part2(Puzzle):
             if end_index < len(fresh_id_ranges) and fresh_id_ranges[end_index][LOWER_BOUND] - 1 == parsed_ub:
                 end_index += 1
             self._update_ranges(fresh_id_ranges, parsed_lb, parsed_ub, start_index, end_index)
-            self.log(divider)
+            self.echo(divider)
 
-        self.log(f"{fresh_id_ranges=}")
+        self.echo(f"{fresh_id_ranges=}")
         certified_fresh = 0
         for lower_bound, upper_bound in fresh_id_ranges:
             certified_fresh += upper_bound - lower_bound + 1

@@ -362,3 +362,50 @@ class Rectangle[T](NamedTuple):
 
     def __contains__(self, item):
         return self.contains(item)
+
+
+class Color:
+    # just some common ones, not meant to be exhaustive
+    @staticmethod
+    def red(text: Any) -> str:
+        return click.style(text, fg="red")
+
+    @staticmethod
+    def green(text: Any) -> str:
+        return click.style(text, fg="green")
+
+    @staticmethod
+    def blue(text: Any) -> str:
+        return click.style(text, fg="blue")
+
+    @staticmethod
+    def yellow(text: Any) -> str:
+        return click.style(text, fg="yellow")
+
+    @staticmethod
+    def magenta(text: Any) -> str:
+        return click.style(text, fg="magenta")
+
+    @staticmethod
+    def cyan(text: Any) -> str:
+        return click.style(text, fg="cyan")
+
+    @staticmethod
+    def success(text: Any) -> str:
+        return Color.green(text)
+
+    @staticmethod
+    def fail(text: Any) -> str:
+        return Color.red(text)
+
+    @staticmethod
+    def err(text: Any) -> str:
+        return Color.red(text)
+
+    @staticmethod
+    def info(text: Any) -> str:
+        return Color.yellow(text)
+
+    @staticmethod
+    def highlight(text: Any) -> str:
+        return Color.magenta(text)

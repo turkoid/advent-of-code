@@ -33,20 +33,20 @@ class Day4Part1(Puzzle):
                 if (adjacent_cells.count("@") + (adjacent_cells.count("X") if part1 else 0)) < 4:
                     moved_paper_rolls += 1
                     warehouse[y][x] = "X"
-        self.log(pretty_grid(warehouse))
+        self.echo(pretty_grid(warehouse))
         return moved_paper_rolls
 
     def solution(self, parsed_data: Grid) -> int:
-        self.log(pretty_grid(parsed_data))
+        self.echo(pretty_grid(parsed_data))
         moved_paper_rolls = self.move_paper_rolls(parsed_data)
         return moved_paper_rolls
 
 
 class Day4Part2(Day4Part1):
     def solution(self, parsed_data: Grid) -> int:
-        self.log(pretty_grid(parsed_data))
+        self.echo(pretty_grid(parsed_data))
         moved_paper_rolls = 0
         while removed_paper_rolls := self.move_paper_rolls(parsed_data, False):
-            self.log(f"Removed {removed_paper_rolls} paper rolls")
+            self.echo(f"Removed {removed_paper_rolls} paper rolls")
             moved_paper_rolls += removed_paper_rolls
         return moved_paper_rolls

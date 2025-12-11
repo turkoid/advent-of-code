@@ -37,8 +37,8 @@ class Day7Part1(Puzzle):
 
     def solution(self, parsed_data: Manifold) -> int:
         manifold = parsed_data
-        self.log(pew_pew(manifold))
-        self.print_divider()
+        self.echo(pew_pew(manifold))
+        self.echo_divider()
         total_splits = 0
         y = 1
         while y < len(manifold):
@@ -61,7 +61,7 @@ class Day7Part1(Puzzle):
                         row[x] = replace_cell
                 x += 1
             y += 1
-            self.log(pew_pew([row]))
+            self.echo(pew_pew([row]))
         return total_splits
 
 
@@ -73,8 +73,8 @@ class Day7Part2(Puzzle):
     def solution(self, parsed_data: QuantumManifold) -> int:
         manifold = parsed_data
         width = len(manifold[0])
-        self.log(pew_pew(manifold))
-        self.print_divider()
+        self.echo(pew_pew(manifold))
+        self.echo_divider()
 
         y = 1
         while y < len(manifold):

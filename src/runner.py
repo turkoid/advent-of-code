@@ -30,7 +30,7 @@ class Runner:
     def disable(self, part: int) -> None:
         self.runnable[part] = False
 
-    def run(self, part: int | None = None, *, debug: bool = False) -> None:
+    def run(self, part: int | None = None, *, debugging: bool = False) -> None:
         if part is None:
             start = 1
             end = self.parts + 1
@@ -44,4 +44,5 @@ class Runner:
             puzzle_class = getattr(self.module, AdventOfCode.puzzle_class(self.day, part))
             puzzle = puzzle_class()
             tests = self.tests.get(part, [])
-            puzzle.solve(tests, expected=self.solutions.get(part, MISSING), debug=debug)
+            if not puzzle.solve(tests, expected=self.solutions.get(part, MISSING), debugging=debugging):
+                break
