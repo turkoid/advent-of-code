@@ -115,6 +115,9 @@ class Puzzle(ABC):
     def echo(self, *args: Any) -> None:
         click.echo(" ".join(str(arg) for arg in args))
 
+    def echo_lines(self, lines: list[Any]) -> None:
+        click.echo("\n".join(str(line) for line in lines))
+
     @abstractmethod
     def parse_data(self, data: str) -> None:
         pass
