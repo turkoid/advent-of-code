@@ -75,16 +75,19 @@ def concat_string_lists(*lists: list[str], fill_char: str = " ", sep: str = " ")
     return "\n".join(buffer)
 
 
-class Point[T](NamedTuple):
-    x: T
-    y: T
+type Scalar = int | float
+
+
+class Point(NamedTuple):
+    x: Scalar
+    y: Scalar
 
     @overload
-    def equals(self, point: Self | tuple[T, T]) -> bool:
+    def equals(self, point: Self | tuple[Scalar, Scalar]) -> bool:
         pass
 
     @overload
-    def equals(self, x: T, y: T) -> bool:
+    def equals(self, x: Scalar, y: Scalar) -> bool:
         pass
 
     def equals(self, *args) -> bool:
@@ -102,42 +105,42 @@ class Point[T](NamedTuple):
         return f"({self.x}, {self.y})"
 
 
-class Point3D[T](NamedTuple):
-    x: T
-    y: T
-    z: T
+class Point3D(NamedTuple):
+    x: Scalar
+    y: Scalar
+    z: Scalar
 
     def __repr__(self) -> str:
         return f"({self.x}, {self.y}, {self.z})"
 
 
-class Dimensions[T](NamedTuple):
-    width: T
-    height: T
+class Dimensions(NamedTuple):
+    width: Scalar
+    height: Scalar
 
     @property
-    def w(self) -> T:
+    def w(self) -> Scalar:
         return self.width
 
     @property
-    def h(self) -> T:
+    def h(self) -> Scalar:
         return self.height
 
     def __repr__(self) -> str:
         return f"{self.width}x{self.height}"
 
 
-class Dimensions3D[T](NamedTuple):
-    width: T
-    height: T
-    depth: T
+class Dimensions3D(NamedTuple):
+    width: Scalar
+    height: Scalar
+    depth: Scalar
 
     @property
-    def w(self) -> T:
+    def w(self) -> Scalar:
         return self.width
 
     @property
-    def h(self) -> T:
+    def h(self) -> Scalar:
         return self.height
 
     @property
@@ -148,146 +151,232 @@ class Dimensions3D[T](NamedTuple):
         return f"{self.width}x{self.height}x{self.depth}"
 
 
-class Rectangle[T](NamedTuple):
-    anchor_a: Point[T]
-    anchor_b: Point[T]
+def _parse_xy_or_point(*args) -> tuple[Scalar, Scalar] | None:
+    match args:
+        case [Point(x, y)]:
+            return x, y
+        case [x, y]:
+            return x, y
+        case _:
+            return None
+    return None
+
+    raise ValueError()
+
+    if len(args) == 1:
+        pt = args[0]
+        if pt is None:
+            return
+        x = pt[0]
+        y = pt[1]
+    else:
+        x, y = args
+    return x, y
+
+
+class Line2D(NamedTuple):
+    point_a: Point
+    point_b: Point
+
+    def is_horizontal(self) -> bool:
+        return self.point_a != self.point_b and self.point_a.y == self.point_b.y
+
+    def is_vertical(self) -> bool:
+        return self.point_a != self.point_b and self.point_a.x == self.point_b.x
+
+    def contains(self, *args) -> bool:
+        if not self.is_horizontal() and not self.is_vertical():
+            return False
+        x, y = _parse_xy_or_point(*args)
+        if x == self.point_a.x:
+            return self.min_y <= y <= self.max_y
+        else:
+            return self.min_x <= x <= self.max_x
+
+    @property
+    def min_x(self):
+        return min(self.point_a.x, self.point_b.x)
+
+    @property
+    def max_x(self):
+        return max(self.point_a.x, self.point_b.x)
+
+    @property
+    def min_y(self):
+        return min(self.point_a.y, self.point_b.y)
+
+    @property
+    def max_y(self):
+        return max(self.point_a.y, self.point_b.y)
+
+    @property
+    def upper_point(self):
+        if self.is_horizontal():
+            raise ValueError(f"{self} is horizontal")
+        return self.point_a if self.point_a.y < self.point_b.y else self.point_b
+
+    @property
+    def lower_point(self):
+        if self.is_horizontal():
+            raise ValueError(f"{self} is horizontal")
+        return self.point_a if self.point_a.y > self.point_b.y else self.point_b
+
+    @property
+    def left_point(self):
+        if self.is_vertical():
+            raise ValueError(f"{self} is vertical")
+        return self.point_a if self.point_a.x < self.point_b.x else self.point_b
+
+    @property
+    def right_point(self):
+        if self.is_vertical():
+            raise ValueError(f"{self} is vertical")
+        return self.point_a if self.point_a.x > self.point_b.x else self.point_b
+
+    def __repr__(self) -> str:
+        return f"{self.point_a}---{self.point_b}"
+
+
+class Rectangle(NamedTuple):
+    anchor_a: Point
+    anchor_b: Point
 
     # anchors (edges)
 
     @property
-    def left(self) -> T:
+    def left(self) -> Scalar:
         return min(self.anchor_a.x, self.anchor_b.x)
 
     @property
-    def right(self) -> T:
+    def right(self) -> Scalar:
         return max(self.anchor_a.x, self.anchor_b.x)
 
     @property
-    def top(self) -> T:
+    def top(self) -> Scalar:
         return min(self.anchor_a.y, self.anchor_b.y)
 
     @property
-    def bottom(self) -> T:
+    def bottom(self) -> Scalar:
         return max(self.anchor_a.y, self.anchor_b.y)
 
     # anchors (corners)
     @property
-    def top_left(self) -> Point[T]:
+    def top_left(self) -> Point:
         return Point(self.left, self.top)
 
     @property
-    def top_right(self) -> Point[T]:
+    def top_right(self) -> Point:
         return Point(self.right, self.top)
 
     @property
-    def bottom_left(self) -> Point[T]:
+    def bottom_left(self) -> Point:
         return Point(self.left, self.bottom)
 
     @property
-    def bottom_right(self) -> Point[T]:
+    def bottom_right(self) -> Point:
         return Point(self.right, self.bottom)
 
     # anchor aliases (corners)
 
     @property
-    def tl(self) -> Point[T]:
+    def tl(self) -> Point:
         return self.top_left
 
     @property
-    def tr(self) -> Point[T]:
+    def tr(self) -> Point:
         return self.top_right
 
     @property
-    def bl(self) -> Point[T]:
+    def bl(self) -> Point:
         return self.bottom_left
 
     @property
-    def br(self) -> Point[T]:
+    def br(self) -> Point:
         return self.bottom_right
 
     # cardinal directions (edges)
 
     @property
-    def north(self) -> T:
+    def north(self) -> Scalar:
         return self.top
 
     @property
-    def east(self) -> T:
+    def east(self) -> Scalar:
         return self.right
 
     @property
-    def south(self) -> T:
+    def south(self) -> Scalar:
         return self.bottom
 
     @property
-    def west(self) -> T:
+    def west(self) -> Scalar:
         return self.left
 
     # cardinal directions (corners)
 
     @property
-    def north_west(self) -> Point[T]:
+    def north_west(self) -> Point:
         return self.top_left
 
     @property
-    def north_east(self) -> Point[T]:
+    def north_east(self) -> Point:
         return self.top_right
 
     @property
-    def south_east(self) -> Point[T]:
+    def south_east(self) -> Point:
         return self.bottom_right
 
     @property
-    def south_west(self) -> Point[T]:
+    def south_west(self) -> Point:
         return self.bottom_left
 
     # cardinal aliases (edges)
 
     @property
-    def n(self) -> T:
+    def n(self) -> Scalar:
         return self.top
 
     @property
-    def e(self) -> T:
+    def e(self) -> Scalar:
         return self.right
 
     @property
-    def s(self) -> T:
+    def s(self) -> Scalar:
         return self.bottom
 
     @property
-    def w(self) -> T:
+    def w(self) -> Scalar:
         return self.left
 
     # cardinal aliases (corners)
 
     @property
-    def nw(self) -> Point[T]:
+    def nw(self) -> Point:
         return self.top_left
 
     @property
-    def ne(self) -> Point[T]:
+    def ne(self) -> Point:
         return self.top_right
 
     @property
-    def se(self) -> Point[T]:
+    def se(self) -> Point:
         return self.bottom_right
 
     @property
-    def sw(self) -> Point[T]:
+    def sw(self) -> Point:
         return self.bottom_left
 
     # dimensions
 
     @property
-    def width(self) -> T:
-        return self.right - self.left + 1
+    def width(self) -> Scalar:
+        return self.right - self.left
 
     @property
-    def height(self) -> T:
-        return self.bottom - self.top + 1
+    def height(self) -> Scalar:
+        return self.bottom - self.top
 
-    def dimensions(self) -> Dimensions[T]:
+    def dimensions(self) -> Dimensions:
         return Dimensions(self.width, self.height)
 
     # helpers
@@ -297,65 +386,66 @@ class Rectangle[T](NamedTuple):
         return self.width * self.height
 
     @overload
-    def contains(self, point: Point[T] | tuple[int, int]) -> bool:
+    def contains(self, point: Point | tuple[int, int]) -> bool:
         pass
 
     @overload
-    def contains(self, x: T, y: T) -> bool:
+    def contains(self, x: Scalar, y: Scalar) -> bool:
         pass
 
     def contains(self, *args) -> bool:
-        if len(args) == 1:
-            pt = args[0]
-            if pt is None:
-                return False
-            x = pt[0]
-            y = pt[1]
-        else:
-            x, y = args
+        x, y = _parse_xy_or_point(*args)
+        inside = self.left <= x <= self.right and self.top <= y <= self.bottom
+        click.echo(f"is {Point(x, y)} in {self}: {inside}")
+        return inside
 
-        return self.left <= x <= self.right and self.top <= y <= self.bottom
+    def encapsulates(self, *args) -> bool:
+        x, y = _parse_xy_or_point(*args)
+        return self.left < x < self.right and self.top < y < self.bottom
+
+    def corners(self, *exclude: Point) -> list[Point]:
+        return [corner for corner in [self.tl, self.tr, self.br, self.bl] if corner not in exclude]
 
     # joke aliases
 
     @property
-    def never(self) -> T:
+    def never(self) -> Scalar:
         return self.top
 
     @property
-    def eat(self) -> T:
+    def eat(self) -> Scalar:
         return self.right
 
     @property
-    def soggy(self) -> T:
+    def soggy(self) -> Scalar:
         return self.bottom
 
     @property
-    def waffles(self) -> T:
+    def waffles(self) -> Scalar:
         return self.left
 
     @property
-    def never_waffles(self) -> Point[T]:
+    def never_waffles(self) -> Point:
         return self.top_left
 
     @property
-    def never_eat(self) -> Point[T]:
+    def never_eat(self) -> Point:
         return self.top_right
 
     @property
-    def soggy_eat(self) -> Point[T]:
+    def soggy_eat(self) -> Point:
         return self.bottom_right
 
     @property
-    def soggy_waffles(self) -> Point[T]:
+    def soggy_waffles(self) -> Point:
         return self.bottom_left
 
     @property
-    def eat_waffles(self) -> T:
+    def eat_waffles(self) -> Scalar:
         return self.right - self.left
 
     @property
-    def never_soggy(self) -> T:
+    def never_soggy(self) -> Scalar:
         return self.bottom - self.top
 
     # magic
