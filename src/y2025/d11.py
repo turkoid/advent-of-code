@@ -22,7 +22,7 @@ class Day11(Puzzle):
 
 class Day11Part1(Day11):
     def solution(self, parsed_data: dict[str, Device]) -> int:
-        self.echo_lines(list(parsed_data.values()))
+        # self.echo_lines(list(parsed_data.values()))
 
         paths: list[list[str]] = []
         queue = [[output] for output in reversed(parsed_data["you"].outputs)]
@@ -48,5 +48,35 @@ class Day11Part1(Day11):
 
 
 class Day11Part2(Day11):
-    def solution(self, parsed_data: None) -> None:
-        raise NotImplementedError
+    def find_paths(
+        self, device: str, devices: dict[str, Device], cache: dict[str, dict[str, int] | None]
+    ) -> dict[str, int]:
+        if device == "out":
+            return {"out": 1}
+        if device in cache:
+            if cache[device] is None:
+                raise ValueError("feedback loop")
+            return cache[device]
+        cache[device] = None
+        device_paths = {
+            "out": 0,
+            "fft": 0,
+            "dac": 0,
+            "valid": 0,
+        }
+        for output in devices[device].outputs:
+            output_paths = self.find_paths(output, devices, cache)
+            for key in device_paths:
+                device_paths[key] += output_paths.get(key, 0)
+            for key, other_key in [("fft", "dac"), ("dac", "fft")]:
+                if device == key:
+                    device_paths[key] += output_paths["out"]
+                    device_paths["valid"] += output_paths[other_key]
+        cache[device] = device_paths
+        return device_paths
+
+    def solution(self, parsed_data: dict[str, Device]) -> int:
+        self.echo_lines(list(parsed_data.values()))
+
+        paths = self.find_paths("svr", parsed_data, {})
+        return paths["valid"]
